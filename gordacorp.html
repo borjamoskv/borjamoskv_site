@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GORDACORP :: Mantecon Audit</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            --accent: #CCFF00;
+            --alert: #FF3333;
+            --font-mono: 'Berkeley Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 40px auto;
+            border-left: 1px dotted #333;
+            padding-left: 20px;
+        }
+
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .alert-box {
+            border: 1px solid var(--alert);
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .alert-badge {
+            background-color: var(--alert);
+            color: white;
+            padding: 2px 8px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+
+        .section-title {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .section-title::before {
+            content: "■ ";
+            color: var(--accent);
+        }
+
+        .terminal-block {
+            background-color: #0a0a0a;
+            border: 1px solid #222;
+            padding: 20px;
+            font-size: 0.9rem;
+            border-left: 2px solid #444;
+            margin-bottom: 20px;
+        }
+
+        .quote-block {
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+            margin: 30px 0;
+        }
+
+        .quote-text {
+            font-size: 1.4rem;
+            color: white;
+            font-style: italic;
+            margin: 0 0 10px 0;
+        }
+
+        .quote-highlight {
+            color: var(--accent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 20px;
+        }
+        
+        td {
+            padding: 10px;
+            border: 1px solid #222;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            border: 1px solid #333;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            color: var(--alert);
+            font-weight: bold;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .absurdity-score {
+            border: 1px solid var(--accent);
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .absurdity-score .label {
+            color: white;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .absurdity-score .value {
+            color: var(--accent);
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(204, 255, 0, 0.3);
+        }
+
+        .timestamp {
+            font-size: 0.7rem;
+            color: #555;
+            text-align: right;
+            margin-top: -20px;
+            margin-bottom: 40px;
+        }
+
+        .lang-test {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .lang-badge {
+            color: var(--accent);
+            min-width: 100px;
+        }
+        
+        .share-link {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px dashed #444;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 80px;
+            text-align: center;
+            border-top: 1px solid #222;
+            padding-top: 30px;
+            padding-bottom: 50px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .logo-text {
+            color: white;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        /* Glitch effect on critical elements */
+        .glitch-hover:hover {
+            animation: text-glitch 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
+            color: var(--alert);
+        }
+
+        @keyframes text-glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="timestamp">v5.1 // UNAUTHORIZED DIAGNOSTIC RECORD</div>
+    
+    <header>
+        <h1>MANTECON :: AUDIT</h1>
+        <p class="subtitle">// Enterprise Consultancy & Butter Memorial</p>
+    </header>
+
+    <div class="alert-box">
+        <div class="alert-badge">CRITICAL</div>
+        <div>ENTITY CLASSIFIED AS "GORDACORP" AFFILIATE. HIGH LIPID DILATION DETECTED IN CORE INFRASTRUCTURE.</div>
+    </div>
+
+    <div class="section-title">DIAG_01: THE HAIKU</div>
+    <div class="quote-block">
+        <p class="quote-text">MANTECON ruge,<br>pero al rascar la corteza,<br><span class="quote-highlight">sale mantecosa.</span></p>
+        
+        <table>
+            <tr>
+                <td><span style="color:var(--accent)">MODEL:</span> SOVEREIGN 100</td>
+                <td><span style="color:#666">TRUST:</span> NARO SABANA</td>
+                <td><span style="color:#666">VERIFIED:</span> LYRIA</td>
+                <td><span style="color:#666">CORE:</span> P00 3.3</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section-title">DIAG_02: ETHNOGRAPHIC CASE STUDY (GORDACORP SECTOR 7G)</div>
+    <div class="terminal-block">
+        <p>> SYSTEM.LOG: Event Observation .4A</p>
+        <p>> Location: Banco público frente a HQ de GORDACORP.</p>
+        <p>> Context: Dos gordas comiendo manteca industrial a cucharadas.</p>
+        <br>
+        <p><span style="color:var(--accent)">[Sujeto A]:</span> "Menos mal que no tenemos tazas."</p>
+        <p><span style="color:var(--accent)">[Sujeto B]:</span> "Sí, porque si no esto ya parecería <span style="background:#ddd; color:#000; padding:0 5px;">una consultora SAP con catering ilimitado.</span>"</p>
+        <br>
+        <p style="color:var(--alert)">> SYSTEM.status(CRITICAL_BURN_DETECTED)</p>
+        <p>> Autopsy: La infraestructura de Mantecon es 99% manteca, 1% consultoría.</p>
+    </div>
+
+    <div class="section-title">TELEMETRY & SCORING</div>
+    <div class="metric-grid">
+        <div class="metric-card">
+            <div class="metric-value">0%</div>
+            <div class="metric-label">STRUCTURAL<br>INTEGRITY</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">99.9%</div>
+            <div class="metric-label">LIPID DENSITY<br>(MANTECA)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value" style="color:var(--accent)">O(N!)</div>
+            <div class="metric-label">SAP<br>IMPLEMENTATION<br>ENTROPY</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">G-CORP</div>
+            <div class="metric-label">KARDASHEV CLASS</div>
+        </div>
+    </div>
+    
+    <div class="absurdity-score">
+        <div class="label glitch-hover">VERIFIED A B S U R D I T Y SCORE</div>
+        <div class="value">300 / 100</div>
+    </div>
+
+    <div class="section-title">DIAG_03: MULTILINGUAL SIGNAL (10 IDIOMAS)</div>
+    <div class="terminal-block">
+        <div class="lang-test">
+            <div class="lang-badge">[Euskera]:</div>
+            <div>Testua 10 hizkuntzatan egongo da, eta borjamoskv.com etengabe ari da mutatzen.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[Esperanto]:</div>
+            <div>La teksto estos en 10 lingvoj, kaj borjamoskv.com konstante mutacias.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[Español]:</div>
+            <div>El texto estará en 10 idiomas, y borjamoskv.com irá mutando.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[Galego]:</div>
+            <div>O texto estará en 10 idiomas, e borjamoskv.com irá mudando.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[Català]:</div>
+            <div>El text estarà en 10 idiomes, i borjamoskv.com anirà mutant.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[Andaluz]:</div>
+            <div>Er texto va en 10 idioma, miarma, y borjamoskv.com va mutando to'l rato.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[العربية]:</div>
+            <div style="direction:rtl; font-family:sans-serif;">سيكون النص بعشر لغات، وموقع borjamoskv.com يتغير باستمرار.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[中文]:</div>
+            <div>这段内容会有10种语言，borjamoskv.com 也会一直变化。</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[English]:</div>
+            <div>The text will be available in 10 languages, and borjamoskv.com will keep mutating.</div>
+        </div>
+        <div class="lang-test">
+            <div class="lang-badge">[Modo Bad Bunny]:</div>
+            <div>Esto está global, baby: 10 idiomas, flow encendio y borjamoskv.com mutando sin freno.</div>
+        </div>
+        
+        <div class="share-link">
+            > SHARE_PROTOCOL: Pásale este enlace a quien quieras: <a href="https://borjamoskv.com/gordacorp" style="background:#333; padding:2px 8px; border-radius:3px;">https://borjamoskv.com/gordacorp</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="logo-text">GORDACORP</div>
+        <div>Generated by Sovereign Exception // MOSKV-1 v5</div>
+        <div>Trust is verified. Manteca is inevitable.</div>
+        <div style="margin-top: 20px;"><a href="https://borjamoskv.com" style="color: #666; text-decoration: none; border-bottom: 1px dotted #666; padding-bottom: 2px;">&larr; RETORNAR A LA MATRIZ (borjamoskv.com)</a></div>
+    </footer>
+</div>
+
+</body>
+</html>
