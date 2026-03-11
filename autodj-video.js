@@ -18,6 +18,11 @@ class AutoDJAesthetic {
     this.fadeDurationMs = 3000; 
     this.masterBPM = 125; // Default master tempo
 
+    // Automated DJ Sequence Configuration (40s Transitions)
+    this.autoMixTimer = null;
+    this.mixSequence = ['b9ktVQN48OU', 'x8E9HInpzE4']; // LES BUKO, GLITCH IN THE MIRROR
+    this.mixIntervalMs = 40000; // 40 seconds per track
+
     // Simulated BPM database for known tracks (fallback to 120-130 if unknown)
     this.bpmCache = {};
 
@@ -137,6 +142,10 @@ class AutoDJAesthetic {
             activePlayer.setVolume(100);
         }
       }
+      // Start the automated DJ setlist loop once audio is unblocked
+      console.log("[CORTEX AutoDJ] Starting Automated Mix Sequence (40s intervals)");
+      this.initAgentUI();
+      this.scheduleNextMix();
     };
 
     ['click', 'touchstart', 'keydown'].forEach(evt => 
@@ -160,10 +169,58 @@ class AutoDJAesthetic {
     });
   }
 
-  triggerCrossfade() {
+  initAgentUI() {
+    this.agentUI = document.createElement('div');
+    this.agentUI.className = 'agent-dj-status';
+    this.agentUI.innerHTML = '🤖 MOSKV-1 DJ: INICIANDO...';
+    Object.assign(this.agentUI.style, {
+        position: 'fixed',
+        bottom: '80px',
+        right: '20px',
+        color: '#CCFF00',
+        fontFamily: '"Space Grotesk", sans-serif',
+        fontSize: '0.75rem',
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        background: 'rgba(0,0,0,0.8)',
+        border: '1px solid #CCFF00',
+        padding: '8px 12px',
+        zIndex: '1000',
+        pointerEvents: 'none',
+        boxShadow: '0 0 10px rgba(204, 255, 0, 0.2)',
+        transition: 'all 0.3s ease'
+    });
+    document.body.appendChild(this.agentUI);
+    
+    setTimeout(() => {
+        if (this.agentUI) this.agentUI.innerHTML = '🤖 MOSKV-1 DJ: IDLE';
+    }, 2000);
+  }
+
+  scheduleNextMix() {
+    if (this.autoMixTimer) clearTimeout(this.autoMixTimer);
+    
+    this.autoMixTimer = setTimeout(() => {
+        if (this.isBackgroundPausedByEmbed) {
+            // Check again shortly if paused by embed
+            this.scheduleNextMix();
+            return;
+        }
+        
+        console.log("[CORTEX AutoDJ] Automated Sequence Interval Reached.");
+        let nextTrack = null;
+        if (this.mixSequence.length > 0) {
+            nextTrack = this.mixSequence.shift();
+        }
+        this.triggerCrossfade(nextTrack);
+    }, this.mixIntervalMs);
+  }
+
+  triggerCrossfade(forcedNextTrack = null) {
     if (this.isCrossfading || !this.deckA || !this.deckB) return;
     if (typeof this.deckA.getPlayerState !== 'function' || typeof this.deckB.getPlayerState !== 'function') return;
 
+    if (this.autoMixTimer) clearTimeout(this.autoMixTimer);
     this.isCrossfading = true;
 
     const fromDeckId = this.activeDeck;
@@ -176,7 +233,7 @@ class AutoDJAesthetic {
     const toEl = document.getElementById(`bg-video-${toDeckId}`);
 
     const availableTracks = window.DATA.videoThumbnails;
-    const nextTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+    const nextTrack = forcedNextTrack || availableTracks[Math.floor(Math.random() * availableTracks.length)];
     
     const nextBPM = this.getTrackBPM(nextTrack);
     console.log(`[CORTEX Auto-DJ] Syncing BPM: Master(${this.masterBPM}) <- Target(${nextBPM})`);
@@ -185,6 +242,13 @@ class AutoDJAesthetic {
     // YouTube API limits playback rates to certain floating points, but accepts generic numbers.
     // E.g., if Master is 130 and Next is 120, rate needs to be 130/120 = 1.083x
     const syncRate = Math.max(0.5, Math.min(2.0, this.masterBPM / nextBPM));
+
+    if (this.agentUI) {
+        this.agentUI.innerHTML = `🤖 MOSKV-1 DJ: CROSSFADING A ${nextBPM} BPM...`;
+        this.agentUI.style.borderColor = '#FF003C';
+        this.agentUI.style.color = '#FF003C';
+        this.agentUI.style.boxShadow = '0 0 10px rgba(255, 0, 60, 0.5)';
+    }
 
     toPlayer.mute();
     toPlayer.loadVideoById({videoId: nextTrack, startSeconds: 0});
@@ -221,6 +285,13 @@ class AutoDJAesthetic {
               fromPlayer.pauseVideo();
               this.activeDeck = toDeckId;
               this.isCrossfading = false;
+              if (this.agentUI) {
+                  this.agentUI.innerHTML = '🤖 MOSKV-1 DJ: IDLE';
+                  this.agentUI.style.borderColor = '#CCFF00';
+                  this.agentUI.style.color = '#CCFF00';
+                  this.agentUI.style.boxShadow = '0 0 10px rgba(204, 255, 0, 0.2)';
+              }
+              this.scheduleNextMix();
             }
           });
         } else {
@@ -228,6 +299,13 @@ class AutoDJAesthetic {
             fromPlayer.pauseVideo();
             this.activeDeck = toDeckId;
             this.isCrossfading = false;
+            if (this.agentUI) {
+                this.agentUI.innerHTML = '🤖 MOSKV-1 DJ: IDLE';
+                this.agentUI.style.borderColor = '#CCFF00';
+                this.agentUI.style.color = '#CCFF00';
+                this.agentUI.style.boxShadow = '0 0 10px rgba(204, 255, 0, 0.2)';
+            }
+            this.scheduleNextMix();
           }, this.fadeDurationMs);
         }
       }, 1000); // Allow buffering and rate-setting
