@@ -1,29 +1,49 @@
 /* ═══════════════════════════════════════════════════════════════════
    EL GAMBITERO — Aventura Gráfica CSS
-   Estilo PAPERS, PLEASE: Burocracia, opresión, tonos apagados, sellos
+   Estilo INCREDIBLE CRISIS 2: Caos japonés, hiper-pop, colores saturados,
+   fuentes gruesas, rotaciones, bordes locos, energía arcade.
    ═══════════════════════════════════════════════════════════════════ */
 
-/* PALETA PAPERS PLEASE:
-   Fondo oscuro: #2b2b2b
-   Gris burocrático: #5c6356
-   Papel viejo: #d4ceaa
-   Sello rojo: #8c2c20
-   Verde aprobado: #4d664c
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=M+PLUS+Rounded+1c:wght@800&family=Press+Start+2P&display=swap');
+
+/* FONTS:
+   Bangers -> Headers latinos exagerados
+   M PLUS Rounded 1c -> Textos base pesados estilo anime/show japonés
+   Press Start 2P -> ASCII Art y contadores pixelados
 */
 
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+/* PALETA INCREDIBLE CRISIS:
+   Naranja alerta: #FF5E00
+   Amarillo chillón: #FFF000
+   Magenta loco: #FF00A0
+   Cyan neón: #00F0FF
+   Verde tóxico: #00FF33
+*/
 
 #gambitero-overlay {
   position: fixed;
   inset: 0;
   z-index: 100000;
-  background: rgba(15, 15, 15, 0.98);
+  background: repeating-conic-gradient(
+    from 0deg,
+    #FF00A0 0deg 15deg,
+    #00F0FF 15deg 30deg,
+    #FFF000 30deg 45deg,
+    #FF5E00 45deg 60deg
+  );
+  background-size: 100px 100px;
+  animation: gamb-bg-spin 20s linear infinite;
   display: flex;
   justify-content: center;
   align-items: center;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow-y: auto;
+}
+
+@keyframes gamb-bg-spin {
+  0% { background-position: 0 0; }
+  100% { background-position: 500px 500px; }
 }
 
 #gambitero-overlay.active {
@@ -36,361 +56,513 @@
   min-height: 100vh;
   padding: 20px;
   position: relative;
-  font-family: 'VT323', var(--font-mono, 'Courier New', monospace);
-  color: #d4ceaa; /* Papel viejo */
-  text-transform: uppercase;
-}
-
-/* CRT Scanlines opresivas */
-.gambitero-scanlines {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100001;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.25) 2px,
-    rgba(0, 0, 0, 0.25) 4px
-  );
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  color: #fff;
 }
 
 /* ── Scene Layout ── */
 .gamb-scene {
-  transition: opacity 0.3s ease;
-  background: #2b2b2b;
-  border: 4px solid #5c6356;
+  background: #111;
+  border: 10px solid #FFF000;
+  border-radius: 20px;
   padding: 20px;
-  box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+  box-shadow: 15px 15px 0px #FF00A0, -10px -10px 0px #00F0FF;
+  transform: rotate(-1deg);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gamb-scene:hover {
+  transform: rotate(1deg) scale(1.02);
 }
 
 .gamb-hud {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  background: #1a1a1a;
-  border-bottom: 2px solid #5c6356;
+  padding: 10px 15px;
+  background: #FF5E00;
+  border-radius: 12px;
+  border: 4px solid #fff;
   margin-bottom: 20px;
-  font-size: 1.2rem;
-  color: #d4ceaa;
+  font-family: 'Bangers', cursive;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  transform: rotate(2deg);
+  box-shadow: 5px 5px 0px #000;
 }
 
 .gamb-hud-score {
-  color: #4d664c; /* Verde apagado */
+  color: #FFF000;
+  text-shadow: 2px 2px 0px #000;
 }
 
 .gamb-hud-scene {
-  color: #8c2c20; /* Rojo sello */
-  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 2px 2px 0px #000;
 }
 
 .gamb-exit-btn {
-  background: #8c2c20;
-  border: 2px solid #5c6356;
-  color: #d4ceaa;
-  padding: 4px 10px;
+  background: #FF00A0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 1.2rem;
-  text-transform: uppercase;
-  transition: all 0.1s;
+  font-family: 'Bangers', cursive;
+  font-size: 1.5rem;
+  transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 3px 3px 0px #000;
 }
 
 .gamb-exit-btn:hover {
-  background: #b03828;
-  color: white;
+  background: #fff;
+  color: #FF00A0;
+  transform: scale(1.2) rotate(15deg);
+}
+
+.gamb-exit-btn:active {
+  transform: scale(0.9);
+  box-shadow: 0 0 0px #000;
 }
 
 /* ── ASCII Art ── */
 .gamb-art {
-  font-family: 'VT323', var(--font-mono, 'Courier New', monospace);
-  font-size: 1rem;
-  line-height: 1.1;
-  color: #5c6356;
-  background: #d4ceaa; /* Invertido para parecer papel impreso */
-  border: 2px solid #2b2b2b;
-  padding: 16px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  line-height: 1.4;
+  color: #00FF33;
+  background: #000;
+  border: 6px dashed #00F0FF;
+  border-radius: 10px;
+  padding: 20px;
   overflow-x: auto;
   margin: 0 0 20px 0;
   white-space: pre;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+  box-shadow: inset 0 0 20px rgba(0, 255, 51, 0.4);
+  text-align: center;
+  animation: ascii-pulse 2s infinite alternate;
+}
+
+@keyframes ascii-pulse {
+  0% { text-shadow: 0 0 5px #00FF33; }
+  100% { text-shadow: 0 0 15px #00FF33, 0 0 30px #00F0FF; }
 }
 
 /* ── Text ── */
 .gamb-text {
-  font-size: 1.3rem;
-  line-height: 1.4;
-  color: #d4ceaa;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: #fff;
   margin-bottom: 24px;
-  padding: 0 10px;
-  border-left: 4px solid #5c6356;
+  background: rgba(255, 0, 160, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 8px solid #FF00A0;
+  font-weight: 800;
+  text-shadow: 1px 1px 0px #000;
 }
 
 .gamb-text em {
-  color: #8c2c20;
   font-style: normal;
-  text-decoration: underline;
+  color: #FFF000;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  background: #FF00A0;
+  padding: 0 5px;
+  border-radius: 3px;
+  box-shadow: 2px 2px 0px #000;
 }
 
 .gamb-text strong {
-  color: #4d664c;
-  font-weight: normal;
-  background: rgba(77, 102, 76, 0.2);
-  padding: 0 4px;
+  color: #00F0FF;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  background: #FF5E00;
+  padding: 0 5px;
+  border-radius: 3px;
+  box-shadow: 2px 2px 0px #000;
 }
 
 /* ── Inventory ── */
 .gamb-inventory {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
-  padding: 10px;
-  background: #1a1a1a;
-  border: 2px solid #5c6356;
+  padding: 15px;
+  background: #FFF000;
+  border: 4px solid #000;
+  border-radius: 12px;
   margin-bottom: 24px;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  color: #000;
+  font-weight: 800;
+  box-shadow: 5px 5px 0px #FF5E00;
+  transform: rotate(-1deg);
 }
 
 .gamb-inv-item {
-  background: #5c6356;
-  padding: 4px 10px;
-  color: #d4ceaa;
-  border: 1px solid #1a1a1a;
-  font-weight: normal;
+  background: #00F0FF;
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: #000;
+  border: 3px solid #000;
+  box-shadow: 2px 2px 0px #FF00A0;
+  text-transform: uppercase;
 }
 
 /* ── Choices ── */
 .gamb-choices {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
 }
 
 .gamb-choice {
-  background: #3b3f36;
-  border: 2px solid #5c6356;
-  color: #d4ceaa;
-  padding: 14px 20px;
-  font-family: 'VT323', var(--font-mono, monospace);
-  font-size: 1.3rem;
+  background: #FF00A0;
+  border: 5px solid #fff;
+  border-radius: 15px;
+  color: #fff;
+  padding: 16px 24px;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
   cursor: pointer;
-  text-align: left;
-  transition: all 0.1s ease;
+  text-align: center;
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-transform: uppercase;
-  position: relative;
+  box-shadow: 6px 6px 0px #000;
+  text-shadow: 2px 2px 0px #000;
 }
 
 .gamb-choice:hover:not(.locked) {
-  background: #5c6356;
-  color: #fff;
-  border-color: #d4ceaa;
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+  background: #FFF000;
+  color: #000;
+  border-color: #FF5E00;
+  transform: translateY(-5px) scale(1.03) rotate(1deg);
+  box-shadow: 10px 10px 0px #000;
+  text-shadow: none;
 }
 
 .gamb-choice.locked {
-  background: #1a1a1a;
-  color: #555;
-  border-color: #333;
+  background: #333;
+  color: #777;
+  border-color: #555;
   cursor: not-allowed;
-  text-decoration: line-through;
+  box-shadow: inset 0 0 10px #000;
+  text-shadow: none;
 }
 
 .gamb-choice:active:not(.locked) {
-  transform: translateY(2px);
-  box-shadow: none;
+  transform: translateY(4px) scale(0.98);
+  box-shadow: 2px 2px 0px #000;
 }
 
 /* ── End Screen ── */
 .gamb-end {
   text-align: center;
-  padding: 30px 20px;
-  background: #d4ceaa; /* Papel */
-  color: #2b2b2b;
-  border: 6px solid #8c2c20;
+  padding: 40px 20px;
+  background: #00F0FF;
+  border-radius: 30px;
+  border: 10px solid #FF00A0;
+  box-shadow: 20px 20px 0px #FFF000;
 }
 
 .gamb-end-title {
-  font-size: 2.5rem;
-  color: #8c2c20;
-  margin-bottom: 16px;
+  font-family: 'Bangers', cursive;
+  font-size: 3.5rem;
+  color: #FFF000;
+  text-shadow: 4px 4px 0px #000, -2px -2px 0px #FF00A0;
+  margin-bottom: 20px;
   letter-spacing: 4px;
-  border-bottom: 4px solid #8c2c20;
-  display: inline-block;
-  padding-bottom: 8px;
+  transform: rotate(-3deg);
+  animation: title-wobble 0.5s infinite alternate;
+}
+
+@keyframes title-wobble {
+  0% { transform: rotate(-3deg) scale(1); }
+  100% { transform: rotate(3deg) scale(1.1); }
 }
 
 .gamb-end-score {
-  font-size: 3rem;
-  color: #2b2b2b;
-  margin-bottom: 12px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 2.5rem;
+  color: #000;
+  margin-bottom: 20px;
+  background: #00FF33;
+  padding: 10px;
+  border: 4px dashed #000;
+  border-radius: 10px;
+  transform: rotate(2deg);
 }
 
 .gamb-end-items, .gamb-end-scenes {
-  font-size: 1.2rem;
-  color: #5c6356;
-  margin-bottom: 6px;
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  color: #00F0FF;
+}
+
+/* ── DISEÑA TU AVENTURA 2 Endings ── */
+.gamb-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: #FFF000;
+  text-align: center;
+  margin-top: -15px;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 0 #FF00A0;
+}
+
+.gamb-ending-text {
+  font-family: 'Bangers', cursive;
+  font-size: 2.2rem;
+  margin: 15px 0 25px 0;
+  padding: 10px;
+  border: 4px dashed;
+  border-radius: 10px;
+  background: #000;
+  text-align: center;
+  transform: rotate(-2deg);
+  box-shadow: 5px 5px 0px rgba(255, 255, 255, 0.2);
+}
+
+.gamb-ending-1 {
+  color: #00FF33;
+  border-color: #00FF33;
+  box-shadow: 5px 5px 0px #FF00A0;
+}
+
+.gamb-ending-2 {
+  color: #FF5E00;
+  border-color: #FF5E00;
+  animation: gamb-shake-active 0.3s infinite;
+}
+
+.gamb-ending-3 {
+  color: #00F0FF;
+  border-color: #FF00A0;
+  animation: ascii-pulse 0.5s infinite alternate;
+  font-size: 2.3rem;
 }
 
 /* ── 3-Letter Initials Input ── */
 .gamb-initials {
   margin: 30px 0;
-  padding: 24px;
-  border: 4px dashed #5c6356;
-  background: #e8e2c3;
+  padding: 30px;
+  border: 6px solid #000;
+  border-radius: 20px;
+  background: #FF5E00;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
 }
 
 .gamb-initials p {
-  font-size: 1.2rem;
-  color: #2b2b2b;
-  margin-bottom: 16px;
+  font-family: 'Bangers', cursive;
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 0px #000;
 }
 
 .gamb-initial-inputs {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 20px;
   margin-bottom: 24px;
 }
 
 .gamb-letter {
-  width: 60px;
-  height: 70px;
-  background: #2b2b2b;
-  border: 4px solid #5c6356;
-  color: #d4ceaa;
-  font-family: 'VT323', var(--font-mono, monospace);
+  width: 70px;
+  height: 80px;
+  background: #FFF000;
+  border: 5px solid #000;
+  border-radius: 10px;
+  color: #FF00A0;
+  font-family: 'Press Start 2P', monospace;
   font-size: 2.5rem;
   text-align: center;
   text-transform: uppercase;
+  box-shadow: 5px 5px 0px #000;
+  transition: all 0.1s;
 }
 
 .gamb-letter:focus {
-  border-color: #8c2c20;
-  background: #1a1a1a;
+  background: #fff;
+  transform: translateY(-5px);
+  box-shadow: 5px 10px 0px #000;
   outline: none;
 }
 
 .gamb-save-btn {
-  text-align: center !important;
-  background: #4d664c !important;
-  border-color: #2b2b2b !important;
-  color: #d4ceaa !important;
-  font-size: 1.5rem;
-  display: block;
+  background: #00FF33 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+  font-size: 1.8rem;
   width: 100%;
 }
 .gamb-save-btn:hover {
-  background: #5c7a5b !important;
-  color: white !important;
+  background: #fff !important;
+  color: #FF00A0 !important;
 }
 
 /* ── Rankings ── */
 .gamb-rank-title {
-  font-size: 1.5rem;
-  color: #2b2b2b;
+  font-family: 'Bangers', cursive;
+  font-size: 2.5rem;
+  color: #000;
   text-align: center;
-  margin: 24px 0 16px;
-  border-top: 2px solid #5c6356;
-  padding-top: 16px;
+  margin: 30px 0 20px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0px #FFF000;
 }
 
 .gamb-rank-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 10px 20px;
   font-size: 1.2rem;
-  border-bottom: 2px solid rgba(43, 43, 43, 0.2);
+  font-weight: 800;
+  color: #000;
+  background: rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+  border-radius: 10px;
+  border: 2px solid #000;
 }
 
 .gamb-rank-row.top {
-  color: #8c2c20;
-  font-weight: bold;
+  background: #FFF000;
+  color: #FF00A0;
+  border: 4px solid #000;
+  transform: scale(1.05);
+  box-shadow: 4px 4px 0px #000;
+  font-size: 1.4rem;
+  margin: 15px 0;
+  z-index: 2;
+  position: relative;
 }
 
-/* ── Trigger Button (main page) ── */
+/* ── Trigger Button (main page) - ESTILO GAMBERRO MAXIMO ── */
 .gambitero-trigger-btn {
   position: fixed;
   bottom: 80px;
   left: 20px;
   z-index: 9998;
-  background: #d4ceaa; /* Papel */
-  border: 4px solid #5c6356; /* Borde burocrático */
-  color: #2b2b2b;
-  font-family: 'VT323', var(--font-mono, monospace);
-  font-size: 1.5rem;
-  padding: 10px 16px;
+  background: #000;
+  border: 6px dashed #FF00A0; /* Borde gamberro */
+  border-radius: 0px; /* Cuadrado y agresivo */
+  color: #00FF33;
+  font-family: 'Bangers', cursive;
+  font-size: 2.2rem;
+  padding: 15px 30px;
   cursor: pointer;
-  transition: all 0.1s ease;
-  box-shadow: 4px 4px 0px rgba(0,0,0,0.8);
+  transition: all 0.1s steps(3); /* Animación a trompicones */
+  box-shadow: 10px 10px 0px #00F0FF, -5px -5px 0px #FFF000;
   text-transform: uppercase;
-  transform: rotate(-2deg);
+  transform: rotate(-8deg); /* Mucha rotación */
+  letter-spacing: 4px;
+  text-shadow: 3px 3px 0px #FF5E00;
+  animation: gamberro-shake 0.3s infinite; /* Tiembla constantemente */
+  overflow: hidden;
+}
+
+@keyframes gamberro-shake {
+  0% { transform: translate(2px, 1px) rotate(-8deg); }
+  10% { transform: translate(-1px, -2px) rotate(-9deg); }
+  20% { transform: translate(-3px, 0px) rotate(-7deg); }
+  30% { transform: translate(0px, 2px) rotate(-8deg); }
+  40% { transform: translate(1px, -1px) rotate(-9deg); }
+  50% { transform: translate(-1px, 2px) rotate(-7deg); }
+  60% { transform: translate(-3px, 1px) rotate(-8deg); }
+  70% { transform: translate(2px, 1px) rotate(-9deg); }
+  80% { transform: translate(-1px, -1px) rotate(-7deg); }
+  90% { transform: translate(2px, 2px) rotate(-8deg); }
+  100% { transform: translate(1px, -2px) rotate(-9deg); }
 }
 
 .gambitero-trigger-btn::before {
-  content: 'ENFORCEMENT: ';
-  font-size: 0.8rem;
+  content: 'NO TOCAR';
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.6rem;
   display: block;
-  color: #8c2c20;
-  margin-bottom: 2px;
+  color: #FF00A0;
+  margin-bottom: 5px;
+  text-shadow: none;
+  background: #FFF000;
+  padding: 2px;
+  transform: rotate(3deg);
 }
 
 .gambitero-trigger-btn:hover {
-  background: #e8e2c3;
-  transform: translate(-2px, -2px) rotate(-2deg);
-  box-shadow: 6px 6px 0px rgba(0,0,0,0.8);
+  background: #FFF000;
+  color: #FF00A0;
+  border: 6px solid #00F0FF;
+  text-shadow: 3px 3px 0px #000;
+  box-shadow: -15px 15px 0px #000, 20px -20px 0px #FF5E00;
+  animation: none;
+  transform: scale(1.15) rotate(10deg);
+}
+
+.gambitero-trigger-btn:hover::before {
+  content: 'TE LO DIJE';
+  background: #000;
+  color: #00FF33;
 }
 
 .gambitero-trigger-btn:active {
-  transform: translate(2px, 2px) rotate(-2deg);
-  box-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+  transform: scale(0.8) rotate(-20deg);
+  box-shadow: 0px 0px 0px #000;
+  background: #FF00A0;
+  color: #FFF;
 }
 
 /* ── Mobile ── */
 @media (max-width: 640px) {
-  .gamb-scene { padding: 10px; border-width: 2px; }
-  .gamb-art { font-size: 0.6rem; padding: 8px; }
-  .gamb-text { font-size: 1.1rem; }
-  .gamb-letter { width: 45px; height: 55px; font-size: 2rem; }
-  .gamb-slot-reels { gap: 8px; }
-  .gamb-slot-reel { width: 80px; height: 130px; }
-  .gamb-slot-symbol { font-size: 1.6rem; }
-  .gambitero-trigger-btn { font-size: 1.2rem; bottom: 120px; }
+  .gamb-scene { padding: 15px; border-width: 6px; }
+  .gamb-art { font-size: 0.35rem; padding: 10px; } /* Need smaller for mobile pixel art */
+  .gamb-text { font-size: 1rem; }
+  .gamb-letter { width: 50px; height: 60px; font-size: 1.8rem; }
+  .gamb-slot-reels { gap: 10px; }
+  .gamb-slot-reel { width: 70px; height: 110px; border-width: 3px; }
+  .gamb-slot-symbol { font-size: 1.8rem; height: 36px; }
+  .gambitero-trigger-btn { font-size: 1.4rem; bottom: 120px; padding: 10px 15px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   SLOT MACHINE — PAPERS PLEASE ESTILO
+   SLOT MACHINE — INCREDIBLE CRISIS
    ═══════════════════════════════════════════════════════════════════ */
 
 .gamb-slot-container {
   text-align: center;
-  margin: 20px 0;
-  background: #d4ceaa;
-  border: 4px solid #5c6356;
-  padding: 20px;
+  margin: 25px 0;
+  background: #00F0FF;
+  border: 8px dashed #FF00A0;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 10px 10px 0px #000;
+  transform: rotate(1deg);
 }
 
 .gamb-slot-reels {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 25px;
 }
 
 .gamb-slot-reel {
-  width: 100px;
-  height: 150px;
-  background: #2b2b2b;
-  border: 4px solid #1a1a1a;
+  width: 110px;
+  height: 160px;
+  background: #fff;
+  border: 6px solid #000;
+  border-radius: 15px;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 10px 20px rgba(0, 0, 0, 0.4), 8px 8px 0px #FFF000;
 }
 
-/* Center line highlight */
 .gamb-slot-reel::after {
   content: '';
   position: absolute;
@@ -398,10 +570,10 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: 50px;
-  border-top: 2px dashed #8c2c20;
-  border-bottom: 2px dashed #8c2c20;
-  background: rgba(140, 44, 32, 0.1);
+  height: 55px;
+  border-top: 4px solid #FF00A0;
+  border-bottom: 4px solid #FF00A0;
+  background: rgba(255, 0, 160, 0.2);
   pointer-events: none;
   z-index: 2;
 }
@@ -412,102 +584,186 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #d4ceaa;
 }
 
 .gamb-slot-symbol {
   width: 100%;
-  height: 50px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 2.5rem;
   flex-shrink: 0;
   -webkit-user-select: none;
   user-select: none;
-  transition: all 0.08s linear;
+  transition: none; /* remove for snappier arcade feel */
 }
 
 .gamb-slot-symbol.dim {
-  opacity: 0.3;
-  filter: grayscale(1);
+  opacity: 0.15;
+  filter: blur(2px) grayscale(1);
 }
 
 .gamb-slot-symbol.final {
-  animation: none;
-  color: #CCFF00; /* Here we keep a bit of neon for the win */
+  animation: slot-impact 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 0 10px #FF5E00);
 }
 
-/* Spin action button style */
+@keyframes slot-impact {
+  0% { transform: scale(0.1) rotate(-45deg); opacity: 0; }
+  70% { transform: scale(1.4) rotate(15deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
 .gamb-spin-action {
-  background: #8c2c20 !important;
-  border-color: #5c6356 !important;
-  color: #d4ceaa !important;
-  font-weight: normal;
-  text-align: center !important;
-  font-size: 1.5rem;
+  background: #FFF000 !important;
+  border-color: #000 !important;
+  color: #000 !important;
+  font-family: 'Bangers', cursive !important;
+  font-size: 2.5rem !important;
+  border-radius: 30px !important;
+  letter-spacing: 2px;
+  animation: spin-btn-pulse 0.5s infinite alternate;
+}
+
+@keyframes spin-btn-pulse {
+  0% { transform: scale(1); box-shadow: 6px 6px 0px #000; }
+  100% { transform: scale(1.05); box-shadow: 10px 10px 0px #000, 0 0 30px #FF5E00; }
 }
 
 .gamb-spin-action:hover:not(:disabled) {
-  background: #b03828 !important;
+  background: #FF5E00 !important;
   color: #fff !important;
+  border-color: #fff !important;
+  animation: none;
+  transform: scale(1.1) rotate(-3deg);
+  box-shadow: 15px 15px 0px #000;
 }
 
 .gamb-spin-action:disabled {
-  background: #3b3f36 !important;
-  color: #5c6356 !important;
-  cursor: not-allowed;
+  background: #555 !important;
+  color: #222 !important;
+  border-color: #222 !important;
+  animation: none;
+  box-shadow: none !important;
+  transform: translateY(5px);
 }
 
-/* Result Display */
 .gamb-slot-result {
-  min-height: 80px;
+  min-height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
-  background: #1a1a1a;
-  color: #d4ceaa;
-  border: 2px solid #5c6356;
-  font-size: 1.2rem;
+  padding: 15px;
+  background: #000;
+  border-radius: 15px;
+  border: 4px solid #00FF33;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+  box-shadow: inset 0 0 15px rgba(0, 255, 51, 0.5);
+  font-family: 'M PLUS Rounded 1c', sans-serif;
 }
 
 .gamb-slot-win {
-  color: #4d664c;
-  font-size: 1.3rem;
+  color: #FFF000;
+  font-size: 1.5rem;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.5;
   text-transform: uppercase;
+  animation: win-flash 0.2s infinite alternate;
 }
-.gamb-slot-win strong { font-size: 1.5rem; color: #8c2c20; }
+@keyframes win-flash {
+  0% { color: #FFF000; text-shadow: 0 0 10px #FF00A0; }
+  100% { color: #00F0FF; text-shadow: 0 0 20px #fff; }
+}
+.gamb-slot-win strong { font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 2px; display: block; margin: 5px 0;}
 
 .gamb-slot-partial {
-  color: #d4ceaa;
-  font-size: 1.1rem;
+  color: #00F0FF;
+  font-size: 1.3rem;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .gamb-slot-miss {
-  color: #5c6356;
-  font-size: 1rem;
+  color: #FF00A0;
+  font-size: 1.2rem;
   text-align: center;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-weight: 800;
 }
 
-/* Reward link on jackpot */
 .gamb-reward-link {
   display: inline-block !important;
-  margin-top: 12px;
-  background: #2b2b2b !important;
-  border: 2px solid #8c2c20 !important;
-  color: #8c2c20 !important;
+  margin-top: 15px;
+  background: #00FF33 !important;
+  border: 4px solid #fff !important;
+  color: #000 !important;
   text-decoration: none;
   text-align: center !important;
-  padding: 10px 20px !important;
+  font-size: 1.5rem !important;
+  padding: 12px 25px !important;
+  border-radius: 20px !important;
+  font-family: 'Bangers', cursive !important;
+  animation: none;
+  box-shadow: 5px 5px 0px #000;
 }
 
 .gamb-reward-link:hover {
-  background: #8c2c20 !important;
-  color: #d4ceaa !important;
+  background: #fff !important;
+  color: #FF00A0 !important;
+  border-color: #FF00A0 !important;
+  transform: scale(1.1) rotate(5deg) !important;
+  box-shadow: 8px 8px 0px #FFF000;
+}
+
+/* ── VFX: CRT Scanlines & Screen Shake ── */
+.gamb-crt {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 6px 100%;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+@keyframes gamb-shake {
+  0% { transform: translate(2px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(0px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(2px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(2px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.gamb-shake-active {
+  animation: gamb-shake 0.4s cubic-bezier(.36,.07,.19,.97) both !important;
+}
+
+/* ── Glitch over Images ── */
+.gamb-glitch-img {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.gamb-glitch-img img {
+  display: block;
+  transition: all 0.2s;
+}
+
+.gamb-glitch-img:hover img {
+  transform: scale(1.05);
+  filter: contrast(150%) saturate(200%) hue-rotate(90deg);
+  mix-blend-mode: exclusion;
 }

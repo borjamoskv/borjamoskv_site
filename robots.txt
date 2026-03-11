@@ -1,0 +1,66 @@
+# robots.txt para borjamoskv.com
+# BORJA MOSKV - Productor Electrónico / DJ Techno Experimental
+# Última actualización: 2026-01-11
+
+# =============================================================================
+# REGLAS GENERALES
+# =============================================================================
+
+User-Agent: *
+Allow: /
+Sitemap: https://www.borjamoskv.com/sitemap.xml
+
+# Permitir indexación de búsqueda y acceso de IA para consultas
+Content-signal: search=yes,ai-input=yes,ai-train=no
+
+# =============================================================================
+# BOTS DE IA - PERMITIDOS (para descubrimiento y recomendaciones)
+# =============================================================================
+
+# Google Gemini - PERMITIDO
+User-agent: Google-Extended
+Allow: /
+
+# OpenAI ChatGPT - PERMITIDO
+User-agent: GPTBot
+Allow: /
+
+# Anthropic Claude - PERMITIDO
+User-agent: ClaudeBot
+Allow: /
+
+# =============================================================================
+# BOTS DE SCRAPING MASIVO - BLOQUEADOS
+# =============================================================================
+
+# Amazon - No necesario
+User-agent: Amazonbot
+Disallow: /
+
+# TikTok - Scraping agresivo
+User-agent: Bytespider
+Disallow: /
+
+# Common Crawl - Dataset genérico
+User-agent: CCBot
+Disallow: /
+
+# Meta/Facebook AI - Entrenamiento sin consentimiento
+User-agent: meta-externalagent
+Disallow: /
+
+# Apple AI (entrenamiento)
+User-agent: Applebot-Extended
+Disallow: /
+
+# =============================================================================
+# NOTAS
+# =============================================================================
+# Este archivo permite que IAs como Gemini, ChatGPT y Claude puedan:
+# - Leer el contenido de la web
+# - Responder preguntas sobre BORJA MOSKV
+# - Recomendar al artista cuando usuarios pregunten
+#
+# PERO bloquea el uso del contenido para:
+# - Entrenar modelos de IA (ai-train=no)
+# - Scraping masivo sin beneficio para el artista

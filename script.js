@@ -241,9 +241,15 @@ document.addEventListener("DOMContentLoaded", () => {
             // Also open the link
             window.open('https://naroa.online', '_blank');
         });
-        // Intercept left click to do nothing and maintain secrecy
+        
+        // Allow left click to open the link directly and play the animation
         egg.addEventListener('click', (e) => {
-            e.preventDefault(); 
+            e.preventDefault();
+            egg.style.transform = 'scale(1.5) rotate(720deg)';
+            egg.style.transition = 'all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            setTimeout(() => {
+                window.location.href = egg.href || 'https://naroa.online';
+            }, 1000);
         });
     };
 
@@ -300,7 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- FLOATING COMPLETE LORE (Random Distribution) ---
     const COMPLETE_LORE = [
-        { title: "AXIOMA DE ENTRELAZAMIENTO", text: "La soberanía cognitiva no reside en el creador ni en el modelo, sino en la fricción termodinámica y semántica que los une. El workflow bridge es el canal absoluto." },
         { title: "I · AXIOMA DEL VACÍO", text: "La estática no es ruido, es memoria no resuelta." },
         { title: "II · GRAVEDAD INVERSA", text: "Componer no es encadenar lógica, es esculpir la gravedad hasta obligar a la máquina a respirar." },
         { title: "III · INSISTENCIA", text: "Me gustan las cosas que insisten más que las que impresionan." },
@@ -308,8 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { title: "V · BILBAO TERMINAL", text: "Producido íntegramente en Bilbao. Sin excusas, sin permisos." },
         { title: "Ω₁ · THALAMUS MEMBRANE", text: "Toda percepción debe atravesar el filtrado de entropía antes del procesamiento denso." },
         { title: "Ω₃ · BYZANTINE DEFAULT", text: "Confianza Cero. Toda ejecución requiere validación matemática previa." },
-        { title: "THE LAST 10% DOCTRINE", text: "Construir el 90% es simple logística. Forjar el 10% final es imponer soberanía absoluta sobre la entropía." },
-        { title: "GHOSTS & BRIDGES", "text": "Abstracciones muertas ejercen curvatura gravitacional. Purifica la señal." }
+        { title: "THE LAST 10% DOCTRINE", text: "Construir el 90% es simple logística. Forjar el 10% final es imponer soberanía absoluta sobre la entropía." }
     ];
 
     const initFloatingLore = () => {
@@ -619,62 +623,339 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initWorks();
 
-    // 6. CANVAS PARTICLES (Industrial Noir Starfield)
-    const initParticles = () => {
+    // 6. CANVAS PARTICLES → SOVEREIGN SWARM (Enjambre IA)
+    const initSwarm = () => {
         const canvas = document.getElementById('particles');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         let width, height;
         let particles = [];
+        const config = {
+            count: window.innerWidth > 768 ? 120 : 60, // Less on mobile
+            maxDistance: 120,    // Connection radius
+            mouseRadius: 150,    // Attraction radius
+            baseSpeed: 0.4,
+            pulseForce: 5        // Click explosion force
+        };
+        
+        // Track mouse position
+        let mouse = { x: -1000, y: -1000, pressed: false };
+        let isPulsing = false;
 
         const resize = () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
+            // Optionally, reinitialize the swarm here if needed
+            // initSwarm(false); 
         };
 
         window.addEventListener('resize', resize);
         resize();
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 1.5;
-                this.speedY = Math.random() * 0.5 + 0.1;
-                this.alpha = Math.random() * 0.5 + 0.1;
+// =========================================================================
+// NO TOCAR JUMPSCARE LOGIC
+// =========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const noTocarBtn = document.getElementById('no-tocar-btn');
+    const elonOverlay = document.getElementById('elon-jumpscare-overlay');
+    if (noTocarBtn && elonOverlay) {
+        noTocarBtn.addEventListener('click', () => {
+            elonOverlay.style.display = 'flex';
+            elonOverlay.style.animation = 'elonShake 0.05s infinite';
+            
+            // Sonido infernal usando Web Audio API
+            try {
+                const ac = new (window.AudioContext || window.webkitAudioContext)();
+                if (ac.state === 'suspended') ac.resume();
+                
+                const osc = ac.createOscillator();
+                const fmOsc = ac.createOscillator();
+                const fmGain = ac.createGain();
+                const gainNode = ac.createGain();
+                
+                // FM Modulation for chaos
+                fmOsc.type = 'square';
+                fmOsc.frequency.value = 400;
+                fmGain.gain.value = 500;
+                fmOsc.connect(fmGain);
+                fmGain.connect(osc.frequency);
+                
+                osc.connect(gainNode);
+                gainNode.connect(ac.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(50, ac.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, ac.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0, ac.currentTime);
+                gainNode.gain.linearRampToValueAtTime(1, ac.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 1.5);
+                
+                fmOsc.start();
+                osc.start();
+                fmOsc.stop(ac.currentTime + 2);
+                osc.stop(ac.currentTime + 2);
+            } catch(e) { console.error('Audio failed:', e); }
+
+            setTimeout(() => {
+                elonOverlay.style.display = 'none';
+                elonOverlay.style.animation = 'none';
+            }, 2000);
+        });
+    }
+});
+        // Mouse Events
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        document.addEventListener('mousedown', () => {
+            mouse.pressed = true;
+            isPulsing = true;
+            // Pulse outward
+            particles.forEach(p => p.pulse(config.pulseForce));
+            setTimeout(() => isPulsing = false, 300); // Visual flash duration
+        });
+
+        document.addEventListener('mouseup', () => {
+            mouse.pressed = false;
+        });
+
+        // Global memory nodes (fetched from KV backend)
+        let historicalNodes = [];
+
+        // Fetch long-term memory (Sovereign Swarm Collective Memory)
+        const loadMemory = async () => {
+            try {
+                const res = await fetch('/api/marks');
+                if (res.ok) {
+                    const marks = await res.json();
+                    if (Array.isArray(marks)) {
+                        historicalNodes = marks.filter(m => typeof m.x === 'number' && typeof m.y === 'number');
+                    }
+                }
+            } catch (e) {
+                console.log("[CORTEX] Collective Memory API not available.");
             }
-            update() {
-                this.y -= this.speedY;
-                if (this.y < 0) {
-                    this.y = height;
-                    this.x = Math.random() * width;
+
+            // Init the swarm after fetching memory
+            initNodes();
+        };
+
+        const initNodes = () => {
+            particles = [];
+            
+            // 1. Base ambient nodes (for the void)
+            const baseCount = window.innerWidth > 768 ? 40 : 20;
+            for (let i = 0; i < baseCount; i++) {
+                particles.push(new Node());
+            }
+
+            // 2. Memory nodes (visitors' footprints)
+            historicalNodes.forEach(mark => {
+                // marks are saved as percentages (0-100)
+                const xPos = (mark.x / 100) * width;
+                const yPos = (mark.y / 100) * height;
+                particles.push(new Node(xPos, yPos));
+            });
+        };
+
+        class Node {
+            constructor(startX = null, startY = null) {
+                this.x = startX !== null ? startX : Math.random() * width;
+                this.y = startY !== null ? startY : Math.random() * height;
+                this.isMemory = startX !== null;
+                
+                // Memory nodes are slower, ambient nodes flit around
+                const speedMult = this.isMemory ? (config.baseSpeed * 0.4) : config.baseSpeed;
+                this.vx = (Math.random() - 0.5) * speedMult;
+                this.vy = (Math.random() - 0.5) * speedMult;
+                
+                this.baseSize = Math.random() * 1.5 + 0.5;
+                if (this.isMemory) this.baseSize += 1.2; // Memory anchors are larger
+                this.size = this.baseSize;
+                this.mass = this.isMemory ? this.size * 2 : this.size; // Memory is heavier
+            }
+
+            pulse(force) {
+                const dx = this.x - mouse.x;
+                const dy = this.y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < config.mouseRadius * 1.5) {
+                    const angle = Math.atan2(dy, dx);
+                    // Heavy memory nodes get pushed less
+                    const massFriction = this.isMemory ? 0.4 : 1.0; 
+                    this.vx += Math.cos(angle) * force * (1 / (dist * 0.05 + 1)) * massFriction;
+                    this.vy += Math.sin(angle) * force * (1 / (dist * 0.05 + 1)) * massFriction;
                 }
             }
+
+            update() {
+                // Flocking / Mouse Attraction
+                if (mouse.x > 0 && mouse.y > 0) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < config.mouseRadius && !mouse.pressed) {
+                        const force = (config.mouseRadius - dist) / config.mouseRadius;
+                        const angle = Math.atan2(dy, dx);
+                        // Memory nodes are more stubborn, hard to pull
+                        const pullFactor = this.isMemory ? 0.01 : 0.03;
+                        this.vx += Math.cos(angle) * force * pullFactor;
+                        this.vy += Math.sin(angle) * force * pullFactor;
+                    }
+                }
+
+                // --- SPATIAL AUDIO REACTIVITY ---
+                // Read CSS variables generated by spatial-audio.js
+                const root = document.documentElement;
+                const rawEnergy = parseFloat(root.style.getPropertyValue('--spatial-energy-raw')) || 0;
+                const rawBass = parseFloat(root.style.getPropertyValue('--spatial-bass-raw')) || 0;
+                
+                // Enjambre "breathes" with the energy
+                let currentSize = this.size + (rawBass * 2.5);
+                
+                // If it's a huge bass drop, add a tiny bit of random outward velocity
+                if (rawBass > 0.8 && Math.random() < 0.1) {
+                    this.vx += (Math.random() - 0.5) * rawBass * 2;
+                    this.vy += (Math.random() - 0.5) * rawBass * 2;
+                }
+
+                // Apply velocity with damping (friction) - memory nodes have more friction (stop faster)
+                this.x += this.vx * (1 + rawEnergy * 0.5); // Faster when there is energy
+                this.y += this.vy * (1 + rawEnergy * 0.5);
+                this.vx *= this.isMemory ? 0.94 : 0.98;
+                this.vy *= this.isMemory ? 0.94 : 0.98;
+
+                // Enforce minimum base wandering speed
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                const minSpeed = this.isMemory ? (config.baseSpeed * 0.3) : config.baseSpeed;
+                
+                if (speed < minSpeed) {
+                    const angle = Math.atan2(this.vy, this.vx) + (Math.random() - 0.5) * 0.5;
+                    this.vx = Math.cos(angle) * minSpeed;
+                    this.vy = Math.sin(angle) * minSpeed;
+                }
+
+                // Wrap smoothly
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+                
+                // Store reactive size for rendering
+                this.reactiveSize = currentSize;
+            }
+
             draw() {
-                ctx.fillStyle = `rgba(204, 255, 0, ${this.alpha})`; // Cyber Lime
+                let color;
+                if (isPulsing) {
+                    color = 'rgba(255, 255, 255, 0.9)';
+                } else if (this.isMemory) {
+                    color = `rgba(204, 255, 0, ${0.7 + (this.reactiveSize * 0.1)})`;
+                } else {
+                    color = `rgba(204, 255, 0, ${0.3 + (this.reactiveSize * 0.1)})`;
+                }
+                
+                ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.reactiveSize, 0, Math.PI * 2);
                 ctx.fill();
+                
+                if (this.isMemory && !isPulsing) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.reactiveSize * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
-        for (let i = 0; i < 100; i++) {
-            particles.push(new Particle());
+        // Initialize by fetching memory first
+        loadMemory();
+
+        // Create a HUD for collective memory count
+        const memoryHud = document.createElement('div');
+        memoryHud.style.position = 'fixed';
+        memoryHud.style.bottom = '20px';
+        memoryHud.style.left = '20px';
+        memoryHud.style.color = 'var(--accent-primary)';
+        memoryHud.style.fontFamily = 'var(--font-mono)';
+        memoryHud.style.fontSize = '10px';
+        memoryHud.style.letterSpacing = '1px';
+        memoryHud.style.zIndex = '1000';
+        memoryHud.style.pointerEvents = 'none';
+        memoryHud.style.opacity = '0.5';
+        memoryHud.style.textTransform = 'uppercase';
+        document.body.appendChild(memoryHud);
+
+        const updateHud = () => {
+            const memoryCount = particles.filter(p => p.isMemory).length;
+            memoryHud.textContent = `Ω_COLLECTIVE_MEMORY: ${memoryCount} NODES`;
+        };
+
+        // Expose add node function globally for memory injection
+        window.addSwarmNode = (x, y) => {
+            particles.push(new Node(x, y));
+            updateHud();
+            
+            // Trigger a mini pulse from the new node's origin
+            particles.forEach(p => {
+                const dx = p.x - x;
+                const dy = p.y - y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < config.mouseRadius) {
+                    const angle = Math.atan2(dy, dx);
+                    p.vx += Math.cos(angle) * (config.pulseForce * 0.5) * (1 / (dist * 0.05 + 1));
+                    p.vy += Math.sin(angle) * (config.pulseForce * 0.5) * (1 / (dist * 0.05 + 1));
+                }
+            });
+        };
+
+        function drawConnections() {
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a + 1; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < config.maxDistance) {
+                        // Opacity based on distance
+                        let opacity = 1 - (distance / config.maxDistance);
+                        // Make connections flash white during a pulse
+                        let color = isPulsing ? `rgba(255, 255, 255, ${opacity * 0.6})` : `rgba(204, 255, 0, ${opacity * 0.15})`;
+                        
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
         }
 
         const animate = () => {
-            ctx.clearRect(0, 0, width, height);
+            // Dark trail effect for motion blur
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawConnections();
+            
             particles.forEach(p => {
                 p.update();
                 p.draw();
             });
+            
             requestAnimationFrame(animate);
         };
 
         animate();
     };
 
-    initParticles();
+    initSwarm();
 
     // 7. CHATQUITO (Frontier AI mock)
     const initChat = () => {
@@ -817,8 +1098,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if(typeof gsap !== 'undefined') {
                 gsap.to(this.cursor, { 
                     scale: 2.5, 
-                    backgroundColor: 'transparent', 
-                    border: '1px solid var(--accent-primary)',
                     duration: 0.3 
                 });
             }
@@ -830,8 +1109,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
                 gsap.to(this.cursor, { 
                     scale: 1,
-                    backgroundColor: 'var(--accent-primary)',
-                    border: 'none',
                     duration: 0.3 
                 });
             }
@@ -843,11 +1120,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if(typeof gsap !== 'undefined') {
                 gsap.set(this.cursor, { 
-                    x: this.pos.x - 10, // Center offset (width/2)
-                    y: this.pos.y - 10 
+                    x: this.pos.x - 16, // Center offset (width/2 of 32px)
+                    y: this.pos.y - 16 
                 });
             } else {
-                this.cursor.style.transform = `translate3d(${this.pos.x - 10}px, ${this.pos.y - 10}px, 0)`;
+                this.cursor.style.transform = `translate3d(${this.pos.x - 16}px, ${this.pos.y - 16}px, 0)`;
             }
             
             requestAnimationFrame(() => this.raf());
@@ -1025,39 +1302,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        // Render a single mark using percentages
-        const renderMark = (xPct, yPct) => {
-            const mark = document.createElement('div');
-            mark.className = 'puntazo';
-            mark.style.left = `${xPct}%`;
-            mark.style.top = `${yPct}%`;
-            
-            // Randomize size slightly for aesthetic
-            const size = Math.random() * 4 + 4; // 4px to 8px
-            mark.style.width = `${size}px`;
-            mark.style.height = `${size}px`;
-            
-            document.body.appendChild(mark);
-        };
-
-        // Load existing marks safely from KV endpoint
-        try {
-            const res = await fetch('/api/marks');
-            if (res.ok) {
-                const marks = await res.json();
-                if (Array.isArray(marks)) {
-                    marks.forEach(m => {
-                        // Guard against bad data
-                        if(typeof m.x === 'number' && typeof m.y === 'number') {
-                            renderMark(m.x, m.y);
-                        }
-                    });
-                }
-            }
-        } catch (e) {
-            console.log("[CORTEX] API Marks not available.");
-        }
-
         // Listen to clicks to create new marks
         document.addEventListener('click', async (e) => {
             // Prevent if clicking on interactive elements
@@ -1071,8 +1315,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const xPct = (e.pageX / scrollWidth) * 100;
             const yPct = (e.pageY / scrollHeight) * 100;
 
-            // Render locally instantly
-            renderMark(xPct, yPct);
+            // Render locally instantly in the Swarm
+            if (typeof window.addSwarmNode === 'function') {
+                window.addSwarmNode(e.pageX, e.pageY);
+            }
             markCount++;
 
             // Trigger Golden Ratio (Fibonacci) Jumpscare
@@ -1125,4 +1371,138 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Delay initialization slightly to prioritize core rendering
     setTimeout(initPuntazos, 1000);
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // MULTILINGUAL MORPHING TEXT (10 Languages)
+    // ═══════════════════════════════════════════════════════════════════
+    const initMultilingualMorph = () => {
+        const textElement = document.getElementById('glitchMorphText');
+        if (!textElement) return;
+
+        const languages = [
+            "Castellano: Naroa.",
+            "Gallego: Naroa.",
+            "Euskera: Naroa.",
+            "Catalán: Naroa.",
+            "Francés: Naroa.",
+            "Inglés: Naroa.",
+            "Alemán: Naroa.",
+            "Italiano: Naroa.",
+            "Portugués: Naroa.",
+            "Ruso: Naroa.",
+            "Árabe: Naroa.",
+            "Mandarín: Naroa.",
+            "Japonés: Naroa.",
+            "Coreano: Naroa.",
+            "Hindú: Naroa.",
+            "Turco: Naroa.",
+            "Sueco: Naroa.",
+            "Danés: Naroa.",
+            "Noruego: Naroa.",
+            "Finlandés: Naroa.",
+            "Holandés: Naroa.",
+            "Polaco: Naroa.",
+            "Checo: Naroa.",
+            "Húngaro: Naroa.",
+            "Rumano: Naroa.",
+            "Búlgaro: Naroa.",
+            "Griego: Naroa.",
+            "Hebreo: Naroa.",
+            "Ucraniano: Naroa.",
+            "Vietnamita: Naroa.",
+            "Tailandés: Naroa.",
+            "Indonesio: Naroa.",
+            "Malayo: Naroa.",
+            "Tagalo: Naroa.",
+            "Swahili: Naroa.",
+            "Zulú: Naroa.",
+            "Afrikáans: Naroa.",
+            "Amhárico: Naroa.",
+            "Somalí: Naroa.",
+            "Hausa: Naroa.",
+            "Yoruba: Naroa.",
+            "Igbo: Naroa.",
+            "Bengalí: Naroa.",
+            "Urdu: Naroa.",
+            "Maratí: Naroa.",
+            "Telugu: Naroa.",
+            "Tamil: Naroa.",
+            "Guyaratí: Naroa.",
+            "Canarés: Naroa.",
+            "Odia: Naroa.",
+            "Malayalam: Naroa.",
+            "Panyabí: Naroa.",
+            "Bhojpuri: Naroa.",
+            "Asamés: Naroa.",
+            "Cachemir: Naroa.",
+            "Nepalí: Naroa.",
+            "Cingalés: Naroa.",
+            "Tibetano: Naroa.",
+            "Birmano: Naroa.",
+            "Lao: Naroa.",
+            "Jemer: Naroa.",
+            "Mongol: Naroa.",
+            "Uzbeko: Naroa.",
+            "Kazajo: Naroa.",
+            "Tayiko: Naroa.",
+            "Georgiano: Naroa.",
+            "Armenio: Naroa.",
+            "Azerí: Naroa.",
+            "Kurdo: Naroa.",
+            "Persa: Naroa.",
+            "Pastún: Naroa.",
+            "Groenlandés: Naroa.",
+            "Aimara: Naroa.",
+            "Quechua: Naroa.",
+            "Guaraní: Naroa.",
+            "Maya: Naroa.",
+            "Náhuatl: Naroa.",
+            "Navajo: Naroa.",
+            "Hawaiano: Naroa.",
+            "Samoano: Naroa.",
+            "Fiyiano: Naroa.",
+            "Maorí: Naroa.",
+            "Esperanto: Naroa.",
+            "Klingon: Naroa.",
+            "Élfico (Sindarin): Naroa.",
+            "Dothraki: Naroa.",
+            "Valyrio: Naroa.",
+            "C ++: Naroa.",
+            "Python: Naroa.",
+            "JavaScript: Naroa.",
+            "Ensamblador: Naroa.",
+            "Andaluz: Naroa.",
+            "Modo Bad Bunny: Naroa.",
+            "Alien: Naroa.",
+            "Marciano: Naroa.",
+            "Binario: Naroa.",
+            "Morse: Naroa.",
+            "Braille: Naroa.",
+            "Telepatía: Naroa.",
+            "Silencio: Naroa."
+        ];
+
+        let currentIndex = 0;
+        textElement.style.transition = 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+        
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % languages.length;
+            const nextText = languages[currentIndex];
+            
+            // Glitch out
+            textElement.style.opacity = 0;
+            textElement.style.filter = 'blur(4px)';
+            textElement.style.transform = 'translateY(10px) scale(0.98)';
+            
+            setTimeout(() => {
+                textElement.textContent = nextText;
+                
+                // Morph in
+                textElement.style.opacity = 1;
+                textElement.style.filter = 'blur(0px)';
+                textElement.style.transform = 'translateY(0) scale(1)';
+            }, 600);
+        }, 4500);
+    };
+    initMultilingualMorph();
 });

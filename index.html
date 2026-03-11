@@ -86,6 +86,7 @@
       <a href="#sets">Sets</a>
       <a href="#moltbook">Moltbook</a>
       <a href="#lab">Lab</a>
+      <a href="https://cortexpersist.com/dj" target="_blank" rel="noopener" class="glitch-text" data-text="DJ AUTOMATA" style="color: var(--accent-primary); font-weight: bold;">DJ AUTOMATA</a>
       <a href="https://diario.borjamoskv.com" class="active">Diario</a>
       <a href="/#contact">Contact</a>
     </div>
@@ -106,6 +107,11 @@
   <section class="hero-section" id="hero">
     <div class="shock-wrapper">
       <h1 class="hero-title glitch-mega" data-text="BORJA MOSKV">BORJA<br>MOSKV</h1>
+      
+      <!-- Multilingual Morphing Text -->
+      <div class="hero-subtitle-container" style="margin-top: 1rem; min-height: 48px; display: flex; justify-content: center; align-items: center; padding: 0 20px;">
+         <p id="glitchMorphText" class="morph-text" style="font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 1px; color: var(--text-secondary); text-align: center; text-transform: uppercase;">El texto estará en 10 idiomas y borjamoskv.com irá mutando.</p>
+      </div>
     </div>
 
     <!-- HAIKU: Central Design Element -->
@@ -860,8 +866,14 @@
   <script src="chiquito.js"></script>
   <!-- El Gambitero — Aventura Gráfica Arcade -->
   <script src="gambitero.js"></script>
-  <button class="gambitero-trigger-btn" id="gambitero-trigger">🎰 EL GAMBITERO</button>
+  <button class="gambitero-trigger-btn glitch-mega" data-text="EL GAMBITERO: DISEÑA TU AVENTURA 2" id="gambitero-trigger">⚠️ EL GAMBITERO: DISEÑA TU AVENTURA 2 ⚠️</button>
   <!-- Cortex Terminal -->
   <script src="cortex-terminal.js"></script>
+
+  <!-- NO TOCAR Jumpscare -->
+  <button id="no-tocar-btn">NO TOCAR</button>
+  <div id="elon-jumpscare-overlay">
+      <img src="img/desagradable_elon.png" alt="Elon Musk" />
+  </div>
 </body>
 </html>

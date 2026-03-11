@@ -1,0 +1,8 @@
+name = "borjamoskv"
+compatibility_date = "2023-12-01"
+pages_build_output_dir = "."
+publish = "."
+
+[[kv_namespaces]]
+binding = "PUNTAZOS"
+id = "3215c381f5c64a5a89393b62082caf26"

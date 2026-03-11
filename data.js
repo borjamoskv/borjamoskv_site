@@ -11,7 +11,9 @@ const DATA = {
         'Otvpn9vfXOE', // ME CAIGO Y ME LEVANTO
         'Yr5CMXrJgIo', // LINDSTRØM & PRINS THOMAS — NAA ER DRUENE (Costumbrismo)
         'b9ktVQN48OU', // LES BUKO
-        'ZB13zY5h4bc'  // El Cigala y en la luna sonando Aphex Twin
+        'ZB13zY5h4bc', // El Cigala y en la luna sonando Aphex Twin
+        '0S43IwBF0uM', // The Chemical Brothers - Star Guitar
+        'UrX4mqXmapE'  // El Chombo - Chacarron
     ],
 
     // Bandcamp Sovereign Bridge (Ω_BANDCAMP)
@@ -101,7 +103,7 @@ const DATA = {
         { id: "_l1J37XK8vM", title: "PERCULAES", desc: "Original · Electronic", categories: ["original", "electronic"] },
         { id: "8UMhx5cDYjo", title: "THE SUPERSTARS", desc: "Original · Electronic", categories: ["original", "electronic"] },
         { id: "ZtOVq-nMgqo", title: "2 MANY FORRESTS", desc: "Original · Electronic", categories: ["original", "electronic"] },
-        { id: "hXFmIm0iLNA", title: "CHATA RAFINA — MI RIMA INDECENTE", desc: "Original · Electronic", categories: ["original", "electronic"] },
         { id: "Zc8QEQ8y1f8", title: "RETRATOS NAROA GUTIÉRREZ GIL", desc: "Visual · Photography", categories: ["original", "4k"] },
+        { id: "UrX4mqXmapE", title: "EL CHOMBO — CHACARRON", desc: "MICA Inject · Electronic", categories: ["original", "electronic"] },
     ],
 };

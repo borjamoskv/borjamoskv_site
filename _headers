@@ -1,0 +1,6 @@
+# Cloudflare Headers para borjamoskv.com
+# Esto fuerza a servir nuestro robots.txt en lugar del generado por Cloudflare
+
+/robots.txt
+  Cache-Control: no-cache, no-store, must-revalidate
+  X-Robots-Tag: all

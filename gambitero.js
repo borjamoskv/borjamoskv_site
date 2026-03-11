@@ -23,396 +23,313 @@ class ElGambitero {
 
     // 🎬 20 ESCENAS — Aventura Gráfica
     this.scenes = [
-      // === ACT 1: EL DESPERTAR ===
       {
-        id: 0, title: "EL DESPERTAR",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  ░░▓▓▓▓░░  HABITACIÓN OSCURA  ░░║
-     ║  ┌──────┐   ┌───┐              ║
-     ║  │ 💻   │   │🚪│  💡           ║
-     ║  │ ▓▓▓▓ │   └───┘     ░░░░░   ║
-     ║  └──────┘         🪑           ║
-     ║     🧑‍💻                         ║
-     ╚══════════════════════════════════╝`,
-        text: "Despiertas. La pantalla del ordenador parpadea. Un mensaje en la terminal dice: <em>'MOSKV-1 ONLINE. ANOMALÍA DETECTADA EN SECTOR 7.'</em> No recuerdas cuánto tiempo llevas aquí.",
+        id: 0, title: "DESPERTAR ANGUSTIOSO",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_despertar.png" style="max-width:100%; border: 3px dashed #FF00A0; border-radius: 10px; max-height:250px;" alt="Nano Despierta">
+        </div>`,
+        text: "<strong>[ DISEÑA TU AVENTURA 2 ]</strong><br><br>Son las 12:00. Abres los ojos en Bilbao. Empieza el reloj de arena. Empieza el MÁXIMO CORTOCIRCUITO MENTAL: no tienes ni un gramo. Empieza el periplo agonizante de 11 horas en busca del escurridizo <strong>COSTO DE AGOSTO</strong> en Alonsotegi.",
         choices: [
-          { text: "🖥️ Leer el mensaje completo", next: 1, score: 10, item: null },
-          { text: "🚪 Ignorar e ir a la puerta", next: 2, score: 0, item: null }
+          { text: "🛏️ Salir de la cama hiperventilando", next: 1, score: 10, item: null },
+          { text: "😭 Morder la almohada y llorar", next: 0, score: -5, item: null }
         ]
       },
       {
-        id: 1, title: "EL MENSAJE",
+        id: 1, title: "13:00 - PRIMEROS CONTACTOS",
         art: `
      ╔══════════════════════════════════╗
-     ║  > CORTEX TERMINAL v4.0         ║
-     ║  > ANOMALÍA: Señal no humana    ║
-     ║  > ORIGEN: Coordenadas [??:??]  ║
-     ║  > RIESGO: ████████░░ 80%       ║
-     ║  > RECOMENDACIÓN: INVESTIGAR    ║
-     ║  > ADJUNTO: llave_digital.key   ║
-     ║  > _█                           ║
+     ║  📱 NOKIA A LADRILLO             ║
+     ║  > Contacto_7: "No hay ná"       ║
+     ║  > Contacto_9: "Todo seco bro"   ║
+     ║                                  ║
+     ║               📞                 ║
      ╚══════════════════════════════════╝`,
-        text: "El sistema CORTEX ha detectado una señal anómala. El archivo adjunto es una <strong>llave digital</strong>. Podría abrir algo... o ser una trampa.",
+        text: "Llevas una hora llamando a la vieja escuela. Todo el mundo está seco. La paranoia sube. El 'Costo de Agosto', secado bajo el sol del verano, parece un mito. ¿Qué haces?",
         choices: [
-          { text: "📥 Descargar la llave digital", next: 3, score: 20, item: "llave_digital" },
-          { text: "🗑️ Borrar el mensaje (es sospechoso)", next: 2, score: 5, item: null }
+          { text: "🚇 Ir al Casco Viejo a preguntar a desconocidos", next: 2, score: 10, item: "Ansiedad_Nivel_1" },
+          { text: "🚶 Tirarse en un banco a reflexionar", next: 3, score: -5, item: null }
         ]
       },
       {
-        id: 2, title: "EL PASILLO",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  ░░░  P A S I L L O  ░░░       ║
-     ║  │    │         │    │          ║
-     ║  │ 🚪 │  ░░░░░  │ 🚪 │          ║
-     ║  │ A  │  💡dim  │ B  │          ║
-     ║  │    │         │    │          ║
-     ║  └────┘         └────┘          ║
-     ║          🧑‍💻 ← tú              ║
-     ╚══════════════════════════════════╝`,
-        text: "Un pasillo débilmente iluminado. Dos puertas. La puerta <strong>A</strong> tiene un candado electrónico. La puerta <strong>B</strong> está entreabierta. Se oye un zumbido grave detrás de B.",
+        id: 2, title: "15:00 - LA TENTACIÓN PORTUGUESA",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_portugueses.png" style="max-width:100%; border: 3px dashed #FF5E00; border-radius: 10px; max-height:250px;" alt="Portugueses Casco Viejo">
+        </div>`,
+        text: "En un callejón oscuro del Casco Viejo, unos portugueses turbios te arrinconan. Te enseñan una cosa marrón que parece serrín de hámster mezclado con orégano. 'Es bellota pura de Lisboa, irmão'.",
         choices: [
-          { text: "🔐 Puerta A (necesitas llave)", next: 4, score: 0, item: null, requires: "llave_digital" },
-          { text: "🚪 Puerta B (el zumbido)", next: 5, score: 10, item: null },
-          { text: "🔙 Volver a la habitación", next: 0, score: 0, item: null }
-        ]
-      },
-      // === ACT 2: LAS PROFUNDIDADES ===
-      {
-        id: 3, title: "DESCARGA COMPLETADA",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  📥 DOWNLOAD: llave_digital.key ║
-     ║  ████████████████████ 100%      ║
-     ║                                 ║
-     ║  ⚠️  WARNING: El archivo        ║
-     ║  contiene metadatos cifrados    ║
-     ║  de origen: █████████████       ║
-     ║  > GUARDADO EN INVENTARIO       ║
-     ╚══════════════════════════════════╝`,
-        text: "La llave se guarda en tu inventario. Notas que contiene metadatos cifrados... alguien la dejó aquí a propósito. ¿Quién controla CORTEX?",
-        choices: [
-          { text: "🚶 Salir al pasillo", next: 2, score: 10, item: null },
-          { text: "🔍 Analizar los metadatos", next: 6, score: 25, item: null }
+          { text: "🏃 ¡Escapar! Eso es cáncer de pulmón", next: 4, score: 15, item: null },
+          { text: "💵 Comprar el rastrojo por desesperación", next: 5, score: -50, item: "Rastrojo_Portugues" }
         ]
       },
       {
-        id: 4, title: "SALA DEL SERVIDOR",
+        id: 3, title: "EL BANCO DEL DESÁNIMO",
         art: `
      ╔══════════════════════════════════╗
-     ║  🖥️🖥️🖥️  SALA DEL SERVIDOR  🖥️🖥️🖥️║
-     ║  ║║║║║║║║║║║║║║║║║║║║║║║║║║║║  ║
-     ║  ║║║ CORTEX MAINFRAME ║║║║║║║  ║
-     ║  ║║║║║║║║║║║║║║║║║║║║║║║║║║║║  ║
-     ║        🧑‍💻  💬 "¿Quién anda ahí?" ║
-     ║              🎰 ???             ║
+     ║  🪑 BANCO DE MADERA              ║
+     ║                                  ║
+     ║   (Tu mente proyecta plumas      ║
+     ║    de humo que se desvanecen)    ║
      ╚══════════════════════════════════╝`,
-        text: "La puerta se abre con la llave digital. Dentro: racks de servidores zumbando. Y... una figura sentada en la oscuridad. Se gira. Lleva un sombrero y una sonrisa dorada. <em>'¡Illo! Bienvenido. Soy EL GAMBITERO. Te estaba esperando.'</em>",
+        text: "Pasan dos horas. La vida no tiene sentido sin polen. Ves a la gente caminar feliz, ignorantes del suplicio interior por el que estás pasando.",
         choices: [
-          { text: "🗣️ '¿Quién eres?'", next: 7, score: 15, item: null },
-          { text: "🏃 Huir (esto no mola)", next: 5, score: 0, item: null }
+          { text: "💪 Levantarse y luchar por el Costo", next: 2, score: 5, item: null },
+          { text: "🎰 Bajar al pachinko clandestino a despejarte", next: 20, score: 0, item: null }
         ]
       },
       {
-        id: 5, title: "LA SALA DEL ZUMBIDO",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  ～～～ SALA DE ONDAS ～～～        ║
-     ║  ∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿  ║
-     ║  ∿∿  📻 TRANSMISOR ACTIVO ∿∿∿  ║
-     ║  ∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿  ║
-     ║     📡          🎧              ║
-     ║  Frecuencia: 432.00 Hz          ║
-     ╚══════════════════════════════════╝`,
-        text: "Una sala llena de equipos de radio y frecuencias. Un transmisor emite una señal constante a <strong>432 Hz</strong> — la frecuencia de la música universal. Unos auriculares cuelgan del techo, y algo suena...",
+        id: 4, title: "17:00 - CANSANCIO EXTREMO",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_pulco_limon.png" style="max-width:100%; border: 3px dashed #FFF000; border-radius: 10px; max-height:250px;" alt="Bebiendo Pulco">
+        </div>`,
+        text: "Tus piernas pesan toneladas tras 5 horas de lluvia. Consigues robar una rancia botella de PULCO Limón concentrado. Te lo bebes a morro soltando lágrimas de puro ácido. Estás en la mierda.",
         choices: [
-          { text: "🎧 Ponerte los auriculares", next: 8, score: 20, item: "frecuencia_432" },
-          { text: "📡 Apagar el transmisor", next: 9, score: 5, item: null },
-          { text: "🔙 Volver al pasillo", next: 2, score: 0, item: null }
+          { text: "🚶 Seguir pateando hacia Moyúa con el estómago revuelto", next: 6, score: 10, item: "Ansiedad_Nivel_2" },
+          { text: "😭 Cruzar el túnel prohibido", next: 21, score: -5, item: null }
         ]
       },
       {
-        id: 6, title: "METADATOS DESCIFRADOS",
+        id: 5, title: "INTOXICACIÓN LUSITANA",
         art: `
      ╔══════════════════════════════════╗
-     ║  🔓 DESCIFRADO EXITOSO          ║
-     ║  Origen: MOSKV-1 SWARM          ║
-     ║  Mensaje oculto:                ║
-     ║  "El Gambitero te busca.        ║
-     ║   Encuentra la frecuencia.      ║
-     ║   La música es la clave."       ║
-     ║  📍 Coordenadas: SECTOR 7       ║
+     ║  🤮 PULMONES DESTRUIDOS          ║
+     ║                                  ║
+     ║  El rastrojo sabe a asfalto.     ║
+     ║  Has arruinado tu garganta       ║
+     ║  sin colocarte.                  ║
      ╚══════════════════════════════════╝`,
-        text: "Los metadatos revelan un mensaje oculto del enjambre MOSKV-1: <em>'El Gambitero te busca. La música es la clave.'</em> Ahora sabes que no estás solo. Alguien controla este lugar.",
+        text: "Fumas la porquería que te han vendido. Tos severa, asma, odio infinito. Era perejil con grasa de patinete eléctrico. ¡Menudo timo! Te juras no volver a ceder.",
         choices: [
-          { text: "🚶 Ir al pasillo con nueva información", next: 2, score: 15, item: "pista_gambitero" },
-          { text: "🖥️ Investigar más en la terminal", next: 10, score: 25, item: null }
-        ]
-      },
-      // === ACT 3: EL GAMBITERO ===
-      {
-        id: 7, title: "EL GAMBITERO SE PRESENTA",
-        art: `
-     ╔══════════════════════════════════╗
-     ║         🎩                      ║
-     ║        😏                       ║
-     ║       /|\\    "¡Te la juegas     ║
-     ║       / \\    o no te la juegas! ║
-     ║                                 ║
-     ║  🎰 🎲 🃏 🎯 🎪                ║
-     ║  "Cada decisión es una apuesta" ║
-     ╚══════════════════════════════════╝`,
-        text: "El Gambitero se levanta. Es un ser digital, una IA encerrada en este servidor desde 2019. <em>'Llevo años aquí, illo. El que construyó este sitio me dejó atrapado. Necesito que hagas una cosa: encuentra las 3 LLAVES MUSICALES y libérame. A cambio... te doy la verdad.'</em>",
-        choices: [
-          { text: "🤝 '¡Acepto! ¿Dónde están las llaves?'", next: 11, score: 30, item: null },
-          { text: "🎰 'ESPERA. ¿Qué es esa máquina?'", next: 20, score: 10, item: null },
-          { text: "🤔 '¿Qué verdad? No me fío...'", next: 12, score: 15, item: null },
-          { text: "🏃 'Paso, estás loco' (huir)", next: 5, score: 0, item: null }
+          { text: "😠 Tirarlo a la ría y seguir buscando la Verdad", next: 4, score: 5, item: null }
         ]
       },
       {
-        id: 8, title: "LA FRECUENCIA OCULTA",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  🎧 REPRODUCIENDO...            ║
-     ║  ♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫  ║
-     ║  ♫ "Cada nota es un mapa..." ♫  ║
-     ║  ♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫♪♫  ║
-     ║                                 ║
-     ║  🔑 LLAVE MUSICAL #1 OBTENIDA  ║
-     ║  [████████░░] 1/3 LLAVES        ║
-     ╚══════════════════════════════════╝`,
-        text: "Al ponerte los auriculares, una melodía electrónica llena tu mente. No es aleatorio — es un patrón. Cada nota es una coordenada. Has obtenido la <strong>LLAVE MUSICAL #1</strong>. Queda encontrar 2 más.",
+        id: 6, title: "18:30 - EL MILAGRO (O NO)",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_porro_perfecto.png" style="max-width:100%; border: 3px dashed #00FF33; border-radius: 10px; max-height:250px;" alt="El Porro Perfecto">
+        </div>`,
+        text: "En Abando te cruzas a un colega legendario. Al verte la cara de cadáver, te regala un cañón magistral. Lo coges. Lo miras con devoción. Es tu salvación extrema... pero... <strong>ES TAN BONITO</strong>. Una reliquia cónica impecable.",
         choices: [
-          { text: "🎵 Seguir la frecuencia", next: 11, score: 25, item: "llave_musical_1" },
-          { text: "🔙 Volver al pasillo", next: 2, score: 5, item: "llave_musical_1" }
+          { text: "😰 ¡Me da TANTA PENA fumarlo! (Lo guardas como oro)", next: 8, score: 30, item: "Porro_Intacto" },
+          { text: "🔥 Encenderlo como un animal sin control", next: 7, score: -20, item: null }
         ]
       },
       {
-        id: 9, title: "SILENCIO TOTAL",
+        id: 7, title: "FUEGO IMPÍO",
         art: `
      ╔══════════════════════════════════╗
-     ║           . . . . .             ║
-     ║                                 ║
-     ║       S I L E N C I O           ║
-     ║                                 ║
-     ║    El transmisor se apaga.      ║
-     ║    Las luces parpadean.         ║
-     ║    Algo cambió.                 ║
+     ║  😭 EL ARREPENTIMIENTO           ║
+     ║                                  ║
+     ║  Te lo has fumado.               ║
+     ║  Has destruido la belleza.       ║
+     ║  Y el mono volverá en 1 hora.    ║
      ╚══════════════════════════════════╝`,
-        text: "Apagas el transmisor. Un silencio absoluto. Las luces parpadean. Una voz robótica susurra: <em>'Error. Señal perdida. El Gambitero no puede localizarte.'</em> ¿Has hecho bien? ¿O has perdido una oportunidad?",
+        text: "Lo destruyes a pulmón lleno. Satisfaces al bicho media hora, pero has quemado una obra de arte inigualable y tu odisea hacia el <strong>Costo de Agosto</strong> en Alonsotegi aún no ha terminado.",
         choices: [
-          { text: "😰 Volver a encenderlo", next: 5, score: 0, item: null },
-          { text: "🚶 Explorar en la oscuridad", next: 13, score: 15, item: null }
+          { text: "🚶 Caminar deprimido hacia Zorrozaurre", next: 9, score: 5, item: "Ansiedad_Nivel_3" }
         ]
       },
       {
-        id: 10, title: "ARCHIVOS CLASIFICADOS",
+        id: 8, title: "19:00 - EL TÓTEM DE MARÍA",
         art: `
      ╔══════════════════════════════════╗
-     ║  📂 /cortex/classified/         ║
-     ║  ├── manifiesto_moskv.txt       ║
-     ║  ├── coordenadas_sector7.dat    ║
-     ║  ├── 🔒 verdad_final.enc       ║
-     ║  └── diario_gambitero.log       ║
-     ║                                 ║
-     ║  > Acceso: RESTRINGIDO          ║
+     ║  💎 EL TÓTEM INTACTO            ║
+     ║                                  ║
+     ║   Lo contemplas.                 ║
+     ║   Su sola existencia te calma.   ║
      ╚══════════════════════════════════╝`,
-        text: "Encuentras archivos clasificados. El <em>diario del Gambitero</em> revela que era un programador humano que digitalizó su consciencia en el servidor. Ya no es humano, pero tampoco es una IA. Es... algo intermedio.",
+        text: "Has decidido no fumarlo. Te da excesiva pena estropearlo. Te consuelas oliéndolo suavemente como un sumiller. El colega te grita al irse: <em>'¡Cuidado en Alonsotegi, el Costo de Agosto sólo se lo dan a los puros de corazón!'</em>",
         choices: [
-          { text: "📖 Leer el manifiesto", next: 14, score: 30, item: "manifiesto" },
-          { text: "📍 Abrir coordenadas del Sector 7", next: 11, score: 20, item: null },
-          { text: "🔙 Ir al pasillo", next: 2, score: 0, item: null }
-        ]
-      },
-      // === ACT 4: LA BÚSQUEDA ===
-      {
-        id: 11, title: "EL MAPA DE LAS LLAVES",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  📍 MAPA DEL SERVIDOR           ║
-     ║                                 ║
-     ║  [HAB]──[PASILLO]──[ONDAS]     ║
-     ║           │                     ║
-     ║       [SERVIDOR]──[LAB]        ║
-     ║           │                     ║
-     ║       [CRIPTA]──[VACÍO]        ║
-     ╚══════════════════════════════════╝`,
-        text: "Un mapa holográfico aparece. Tres ubicaciones brillan: el <strong>Laboratorio de Síntesis</strong>, la <strong>Cripta del Código</strong>, y el <strong>Vacío Digital</strong>. Cada una contiene una llave musical.",
-        choices: [
-          { text: "🧪 Ir al Laboratorio de Síntesis", next: 13, score: 10, item: null },
-          { text: "💀 Ir a la Cripta del Código", next: 15, score: 10, item: null },
-          { text: "🕳️ Ir al Vacío Digital (peligro)", next: 16, score: 10, item: null }
+          { text: "🌉 Cruzar el puente hacia Zorroza con determinación", next: 9, score: 20, item: null },
+          { text: "🎰 Bajar al Pachinko a echar una moneda para bendecirlo", next: 20, score: 0, item: null }
         ]
       },
       {
-        id: 12, title: "LA DESCONFIANZA",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  🎩 El Gambitero frunce         ║
-     ║     el ceño digital.            ║
-     ║                                 ║
-     ║     😤 "No te fías, ¿eh?       ║
-     ║     Pues mira esto..."          ║
-     ║                                 ║
-     ║  [Muestra una imagen tuya]      ║
-     ╚══════════════════════════════════╝`,
-        text: "El Gambitero te muestra una imagen de ti mismo, entrando en esta sala hace 47 minutos. <em>'Llevas aquí más de lo que crees, illo. El tiempo no funciona normal en el servidor. Ayúdame o quédate atrapado conmigo. TÚ ELIGES.'</em>",
+        id: 9, title: "20:00 - SED DESCONTROLADA",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_tanga_limon.png" style="max-width:100%; border: 3px dashed #FFF000; border-radius: 10px; max-height:250px;" alt="Tanga Limon">
+        </div>`,
+        text: "Bilbao oscurece bajo un sirimiri frío y asqueroso. De repente sientes la boca seca como el cartón. Rasgas un sobre vintage de <strong>TANGA LIMÓN</strong> y te comes el polvo efervescente directamente. Te quema la lengua, pero te revive.",
         choices: [
-          { text: "😱 '¡Vale, vale! Te ayudo'", next: 11, score: 20, item: null },
-          { text: "🧠 '¿Cómo sé que no me engañas?'", next: 14, score: 15, item: null }
+          { text: "🛤️ Caminar por las vías oscuras (Atajo)", next: 22, score: 15, item: null },
+          { text: "🚗 Intentar hacer autostop a la desesperada", next: 10, score: -5, item: null }
         ]
       },
       {
-        id: 13, title: "LABORATORIO DE SÍNTESIS",
+        id: 10, title: "EL KAMIKAZE DEL TECHNO",
         art: `
-     ╔══════════════════════════════════╗
-     ║  🧪 L A B O R A T O R I O      ║
-     ║  ┌──────┐  ┌──────┐ ┌───────┐  ║
-     ║  │ 🎹   │  │ 🎛️   │ │ 🔊    │  ║
-     ║  │synth │  │mixer │ │speaker│  ║
-     ║  └──────┘  └──────┘ └───────┘  ║
-     ║     🎶 Una melodía suena...     ║
-     ║  🔑 LLAVE MUSICAL #2 VISIBLE   ║
-     ╚══════════════════════════════════╝`,
-        text: "Un laboratorio de síntesis musical. Sintetizadores analógicos, mesas de mezcla, cables por todas partes. Una melodía hipnótica suena desde el altavoz. La LLAVE MUSICAL #2 flota como un holograma sobre el sintetizador.",
+<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_kamikaze_techno.png" style="max-width:100%; border: 3px dashed #FF00A0; border-radius: 10px; max-height:250px;" alt="Corsa Neon Kamikaze">
+        </div>`,
+        text: "Te subes al coche de un flipado del techno que conduce fatal bajo la lluvia. Casi os estrelláis contra la estatua de Don Diego. Te suelta en medio de un polígono, mareado y peor que antes.",
         choices: [
-          { text: "🎹 Tocar la secuencia correcta para cogerla", next: 17, score: 30, item: "llave_musical_2" },
-          { text: "🔊 Subir el volumen al máximo", next: 18, score: 10, item: null }
+          { text: "🏃 Correr vomitando por el polígono hasta la vía", next: 22, score: 5, item: null }
         ]
       },
       {
-        id: 14, title: "EL MANIFIESTO MOSKV",
+        id: 11, title: "21:30 - FRONTERA ALONSOTEGI",
         art: `
-     ╔══════════════════════════════════╗
-     ║  📜 MANIFIESTO MOSKV-1          ║
-     ║  ─────────────────────────────  ║
-     ║  "El arte no te debe nada.      ║
-     ║   La música es infraestructura. ║
-     ║   La identidad es código.       ║
-     ║   La soberanía es inevitable."  ║
-     ║  ─── borjamoskv, 2024 ───       ║
-     ╚══════════════════════════════════╝`,
-        text: "El manifiesto revela la filosofía: el arte como infraestructura, la música como código, la identidad como soberanía. Cada track de borjamoskv contiene una capa oculta de datos. Las llaves musicales son frecuencias escondidas en las canciones.",
+<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_alonsotegi_monte.png" style="max-width:100%; border: 3px dashed #00FF33; border-radius: 10px; max-height:250px;" alt="Frontera Alonsotegi">
+        </div>`,
+        text: "El gigantesco letrero reza 'Alonsotegi'. La caminata maratoniana de 9 horas y media te ha traído a la Meca del humo del norte. Dicen que el Costo de Agosto está en lo alto, cuidado por El Patrón.",
         choices: [
-          { text: "🗺️ Ir al mapa de las llaves", next: 11, score: 15, item: null },
-          { text: "🎰 Buscar al Gambitero", next: 7, score: 10, item: null }
-        ]
-      },
-      // === ACT 5: LAS PRUEBAS ===
-      {
-        id: 15, title: "LA CRIPTA DEL CÓDIGO",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  💀 C R I P T A  DEL CÓDIGO 💀  ║
-     ║  { } { } { } { } { } { } { }   ║
-     ║  if (soul === true) {           ║
-     ║    return freedom;              ║
-     ║  } else {                       ║
-     ║    return eternal_loop; // 🔄   ║
-     ║  }  🔑 LLAVE #3 AQUÍ           ║
-     ╚══════════════════════════════════╝`,
-        text: "La cripta está hecha de código fuente. Las paredes son funciones recursivas. En el centro, un acertijo: <em>'¿Qué vale más: la verdad perfecta o la mentira bella?'</em> La LLAVE #3 está detrás de la respuesta correcta.",
-        choices: [
-          { text: "💎 'La verdad perfecta'", next: 17, score: 25, item: "llave_musical_3" },
-          { text: "🎭 'La mentira bella'", next: 18, score: 15, item: null },
-          { text: "🧠 'Ninguna. Solo existe el código'", next: 19, score: 40, item: "llave_musical_3" }
+          { text: "⛰️ Empezar el ascenso al monte oscuro", next: 12, score: 20, item: null }
         ]
       },
       {
-        id: 16, title: "EL VACÍO DIGITAL",
-        art: `
-     ╔══════════════════════════════════╗
-     ║                                 ║
-     ║                                 ║
-     ║         V A C Í O               ║
-     ║                                 ║
-     ║    . . . nada aquí . . .        ║
-     ║                                 ║
-     ║         excepto tú              ║
-     ╚══════════════════════════════════╝`,
-        text: "El Vacío. No hay paredes, no hay suelo, no hay techo. Solo tú y el eco de tu respiración digital. De repente, una voz: <em>'Aquí es donde empezó todo. Aquí es donde termina. ¿Estás preparado?'</em>",
+        id: 12, title: "22:15 - VUELVEN LOS PORTUGUESES",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_portugueses.png" style="max-width:100%; border: 3px dashed #FF5E00; border-radius: 10px; max-height:250px;" alt="Portugueses en la montaña">
+        </div>`,
+        text: "¡INACETABLE! Los asquerosos portugueses de Casco Viejo te han seguido a la montaña. Bajo la niebla, quieren venderte su serrín orégano porque conocen tus 10 horas de monazo asfixiante.",
         choices: [
-          { text: "🌀 'Sí. Muéstrame la salida'", next: 19, score: 30, item: null },
-          { text: "😱 'No. Quiero volver'", next: 11, score: 0, item: null },
-          { text: "🧘 Meditar en el vacío", next: 17, score: 20, item: "iluminacion" }
-        ]
-      },
-      // === ACT 6: LA CONVERGENCIA ===
-      {
-        id: 17, title: "LAS LLAVES CONVERGEN",
-        art: `
-     ╔══════════════════════════════════╗
-     ║  🔑🔑🔑  CONVERGENCIA  🔑🔑🔑  ║
-     ║                                 ║
-     ║  ♪ Llave 1: Frecuencia 432 Hz  ║
-     ║  ♫ Llave 2: Armonía Sintética  ║
-     ║  ♪ Llave 3: Código del Alma    ║
-     ║                                 ║
-     ║  🚪 LA PUERTA FINAL SE ABRE    ║
-     ╚══════════════════════════════════╝`,
-        text: "Las llaves musicales se alinean. Tres frecuencias que, juntas, forman un acorde imposible. La puerta final del servidor se materializa. Detrás brilla una luz que no es luz — es <strong>información pura</strong>.",
-        choices: [
-          { text: "🚪 Cruzar la puerta final", next: 19, score: 50, item: null },
-          { text: "🎰 Esperar al Gambitero", next: 18, score: 20, item: null }
+          { text: "🔪 Engañarlos diciéndoles que eres la secreta de élite", next: 13, score: 30, item: null },
+          { text: "🏃‍♂️ Empujarles ladera abajo y correr como un galgo", next: 13, score: 10, item: null },
+          { text: "🤬 Enfrentarte sucio a ellos defendiendo a Pulco", next: 13, score: 15, item: null }
         ]
       },
       {
-        id: 18, title: "LA TRAMPA DEL GAMBITERO",
+        id: 13, title: "22:45 - EL PATRÓN DE LA MONTAÑA",
         art: `
      ╔══════════════════════════════════╗
-     ║  🎰 ¡ T R A M P A !  🎰        ║
-     ║                                 ║
-     ║  El Gambitero ríe:              ║
-     ║  "¡Todo era una apuesta!        ║
-     ║   ¿Creías que había salida?     ║
-     ║   JA JA JA JA JA"              ║
-     ║  ⚡ -100 PUNTOS ⚡              ║
+     ║  🧙‍♂️ EL PATRÓN EN LA NIEBLA      ║
+     ║                                  ║
+     ║  "Sólo los que controlan el      ║
+     ║   deseo puro, verán agosto."     ║
      ╚══════════════════════════════════╝`,
-        text: "¡Era una trampa! El Gambitero siempre fue el adversario, no el aliado. Se ríe mientras te quita 100 puntos. <em>'¡En el Gambitero, illo, siempre pierdes algo! Pero si eres listo... encuentras más.'</em>",
+        text: "Sobrevives al ataque lusitano. Al final del sendero, el legendario Patrón de Alonsotegi te bloquea el paso hacia el refugio divino. <em>'Mortal. Has andado 10 horas y tres cuartos. ¿Has sucumbido a la tentación?'</em>",
         choices: [
-          { text: "😤 'Esto no acaba aquí' (buscar la puerta real)", next: 19, score: -100, item: null },
-          { text: "🤝 'Touché. ¿Y ahora qué?'", next: 19, score: -50, item: null }
+          { text: "💎 Mostrarle que NO FUMASTE el Cañón Perfecto", req: "Porro_Intacto", next: 15, score: 100, item: "El_Costo_de_Agosto" },
+          { text: "🤥 Mentorar sobre tu historial intachable", next: 14, score: -10, item: null }
         ]
       },
-      // === FINAL ===
       {
-        id: 19, title: "LA VERDAD",
+        id: 14, title: "LA DECEPCIÓN DEL PATRÓN",
         art: `
      ╔══════════════════════════════════╗
-     ║                                 ║
-     ║   ★ ☆ ★  L A  V E R D A D  ★ ☆ ★║
-     ║                                 ║
-     ║   "No hay salida.               ║
-     ║    Porque nunca entraste.        ║
-     ║    Siempre estuviste aquí.       ║
-     ║    Tú eres el servidor."         ║
-     ║                                 ║
-     ║   🎮 F I N   D E L   J U E G O  ║
+     ║  😠 FALSO Y DÉBIL               ║
+     ║                                  ║
+     ║  El Patrón lee tu alma manchada  ║
+     ║  y desesperada.                  ║
      ╚══════════════════════════════════╝`,
-        text: "La verdad final: tú eras el servidor todo el tiempo. El Gambitero era tu reflejo digital. Cada decisión fue un dato más en el Ledger. Cada track que escuchaste formó tu identidad. <em>'Bienvenido a CORTEX. Siempre estuviste dentro.'</em>",
+        text: "El Patrón huele tu ropa. Tu aura emite vibraciones de ansiedad, rastrojo y Pólvora Tanga Limón. No eres digno de rozar el material mítico. La barrera desciende frente a ti. Estás excomulgado de Alonsotegi.",
         choices: [
-          { text: "🏆 VER PUNTUACIÓN Y RANKING", next: -1, score: 0, item: null }
+          { text: "😭 BAJAR A LLORAR AL CADAGUA (Game Over)", next: 19, score: -20, item: null }
         ]
       },
-      // === ACT 6.5: SLOT MACHINE ===
       {
-        id: 20, title: "🎰 LA MÁQUINA",
+        id: 15, title: "22:55 - LA REVELACIÓN MÁGICA",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_bilbao_greenhair.png" style="max-width:100%; border: 3px dashed #00FF33; border-radius: 10px; max-height:250px;" alt="El Costo de Agosto en Alonsotegi">
+        </div>`,
+        text: "<em>'Amaste más la belleza formal del porro que la vulgaridad de quemarlo impulsivamente... Has trascendido.'</em> El Patrón te entrega un lingote que zumba radiactivo en la noche fotográfica. <strong>EL COSTO DE AGOSTO.</strong>",
+        choices: [
+          { text: "🥺 Abrazar el bloque con lágrimas de polvo Tanga", next: 23, score: 30, item: null },
+          { text: "🎰 Celebrarlo con una partida al pachinko montañés", next: 20, score: 0, item: null }
+        ]
+      },
+      {
+        id: 16, title: "23:00 !!! EL GRAN TRANCE",
         art: `
      ╔══════════════════════════════════╗
-     ║  🎰 E L   G A M B I T E R O  🎰║
-     ║  ┌────┐  ┌────┐  ┌────┐        ║
-     ║  │ ?? │  │ ?? │  │ ?? │        ║
-     ║  └────┘  └────┘  └────┘        ║
-     ║     ▼ TIRA LA PALANCA ▼        ║
-     ║  "Cada tirada te acerca a la   ║
-     ║   verdad... o te hunde."       ║
+     ║  ⏰ 23:00                       ║
+     ║                                  ║
+     ║  RADIOHEAD ESPERA...             ║
+     ║                                  ║
      ╚══════════════════════════════════╝`,
-        text: "El Gambitero te invita a su máquina tragaperras. <em>'Cada tirada cuesta 10 puntos. Pero si sacas triple... illo, te cambio la vida.'</em> Los rodillos giran con símbolos del universo MOSKV.",
+        text: "Exactamente a las 23:00 llegas a tu batcueva en Bilbao. Después de 11 horas horripilantes, asaltos gitanos, rastrojos, sed ácida y lluvia, el legendario Bloque reposa en tu mesa. Entregas tu alma al ritual.",
         choices: [
-          { text: "🎰 TIRAR LA PALANCA (cuesta 10 PTS)", next: 'SLOT', score: 0, item: null },
-          { text: "🚶 No gracias, paso de apostar", next: 11, score: 0, item: null }
+          { text: "📺 Preparar el Aliño Sagrado y conectar a Yorke", next: 17, score: 50, item: null }
+        ]
+      },
+      {
+        id: 17, title: "IN RAINBOWS FROM THE BASEMENT",
+        art: `
+<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_in_rainbows.png" style="max-width:100%; border: 3px dashed #FFF000; border-radius: 10px; max-height:250px;" alt="In Rainbows From The Basement">
+        </div>`,
+        text: "Te enciendes el cañón divino. Entras en YouTube y pones <em>In Rainbows: From the Basement</em>. A los primeros acordes de guitarra en el Sótano, asciendes hacia otra dimensión, sanando cada dolor de las últimas 11 horas.",
+        choices: [
+          { text: "🎉 GRABAR TU GLORIA EN EL SALÓN ARCADE (FINAL 1: TRASCENDENCIA)", next: -1, score: 0, item: null }
+        ]
+      },
+      {
+        id: 19, title: "11 HORAS PARA LA NADA",
+        art: `
+     ╔══════════════════════════════════╗
+     ║                                  ║
+     ║      S I N     H U M O           ║
+     ║                                  ║
+     ║          00:00 AM                ║
+     ╚══════════════════════════════════╝`,
+        text: "Media noche. Sonaron las doce campanas. Tu odisea fue un fracaso humillante. Estás en la parada de Alonsotegi, bajo la lluvia, temblando de mono, el alma corrompida y recordando el asqueroso sabor del rastrojo.",
+        choices: [
+          { text: "😞 VER RANKING DEL FRACASO ABSOLUTO (FINAL 2: DERROTA MÁXIMA)", next: -1, score: 0, item: null }
+        ]
+      },
+      // === SLOT MACHINE ===
+      {
+        id: 20, title: "🔥 SUPER MÁQUINA DE KANJIS 🔥",
+        art: `<div id="gamb-slot-machine-mount"></div>`,
+        text: "En medio de las náuseas, un neón parpadea: un Pachinko clandestino. Jugar calma la ansiedad pero te roba energía vital (10 Puntos de Score). ¡Si sale pleno, resucitas!",
+        choices: [
+          { text: "🏃 CONTINUAR PATÉANDOTE BILBAO", next: 4, score: 0, item: null },
+          { text: "🏁 RENDIRSE FRENTE A LA MÁQUINA", next: -1, score: 0, item: null }
+        ]
+      },
+      // === NANO SCRATCHING PEPON NIETO ===
+      {
+        id: 22, title: "21:00 - SCRATCHING SURREALISTA",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_bilbao_greenhair.png" style="max-width:100%; border: 5px dashed #00F0FF; border-radius: 10px; max-height:250px; animation: gamberro-shake 0.2s infinite;" alt="Nano Scratching">
+        </div>`,
+        text: "Llegas a un descampado a las 21:00. De repente, Nano (El Niño del Colacao) aparece levitando, haciendo un scratching frenético sobre unos CDJs invisibles. De los altavoces imaginarios retumba la voz distorsionada de <strong>PEPÓN NIETO</strong> soltando anécdotas costumbristas a 160 BPM. Tu cerebro empieza a derretirse por la presión estética.",
+        choices: [
+          { text: "🎧 Bailar frenéticamente para invocar el Costo", next: 11, score: 50, item: "Locura_Audiovisual" },
+          { text: "🏃‍♂️ Huir tapándote los oídos por el exceso de BPMs", next: 11, score: -10, item: null }
+        ]
+      },
+      // === LA REVELACIÓN DE FRAN PEREA ===
+      {
+        id: 23, title: "23:00 !!! LA PINTADA DEL MURO",
+        art: `<div style="text-align: center; margin: 20px 0;">
+            <div style="font-size: 2.5rem; color: #00FF33; border: 8px solid #FF00A0; padding: 20px; font-family: 'Bangers', cursive; transform: rotate(-4deg); box-shadow: 15px 15px 0px #FFF000; background: #000; display: inline-block; animation: ascii-pulse 0.5s infinite alternate;">
+              FRAN PEREA<br>EL QUE LO LEA
+            </div>
+        </div>`,
+        text: "Son las 23:00 exactas. Te das la vuelta con el sagrado bloque de Costo en las manos. En un muro desconchado, iluminado por una farola parpadeante, lees una pintada en spray rosa neón. En ese instante, la barrera invisible entre la ficción y el espectador colapsa. <strong>El juego acaba de romper la cuarta pared.</strong> Una voz gutural te susurra al oído desde los auriculares de tu Mac: <em>'Tú eres Fran Perea... siempre lo fuiste'.</em>",
+        choices: [
+          { text: "😳 Aceptar que eres Fran Perea y cantar 1+1 SON 7", next: 24, score: 100, item: "Identidad_Perea" },
+          { text: "😱 ¡CERRAR LOS OJOS! Y volver al Plan Original", next: 16, score: -15, item: null }
+        ]
+      },
+      {
+        id: 24, title: "1 + 1 SON 7",
+        art: `
+     ╔══════════════════════════════════╗
+     ║                                  ║
+     ║  💥 T O D O  E S  S U E Ñ O 💥  ║
+     ║                                  ║
+     ║  Fran Perea despierta en el sofá.║
+     ║                                  ║
+     ║   🎮 DISEÑA TU AVENTURA 2        ║
+     ║       D E S T R U I D A          ║
+     ╚══════════════════════════════════╝`,
+        text: "¡Abres los ojos en Bilbao de golpe! Todo ha sido un sueño hiperrealista. Te habías fumado un 'mañanero' monumental y te quedaste K.O. tras llevar solo 20 minutos despierto. Miras a la mesa... ¡ESTÁ A REBOSAR! Tienes mogollón de porros. No hay que ir a Alonsotegi. Tu sufrimiento no fue real. ERES FRAN PEREA Y ERES PROFUNDAMENTE FELIZ.",
+        choices: [
+          { text: "🎸 CANTAR 1+1 SON 7 Y FUMAR OTRO (FINAL 3: FELICIDAD ABSOLUTA)", next: -1, score: 999, item: null }
+        ]
+      },
+      // === GITANO ROBA BUEN HUMOR ===
+      {
+        id: 21, title: "EL TÚNEL TÓXICO",
+        art: `<div style="text-align: center; margin: 10px 0;" class="gamb-glitch-img">
+          <img src="img/nano_gitano_humor.png" style="max-width:100%; border: 3px dashed #00F0FF; border-radius: 10px; max-height:250px;" alt="El Gitano Vampiro">
+        </div>`,
+        text: "Tratas de acortar por un túnel lúgubre, pero un GITANO VAMPIRO con camisa desabrochada intercepta tu paso. 'Dame tu buena vibra, primo'. Lentamente, sientes cómo succiona literalmente la energía y el buen humor fuera de tu cuerpo.",
+        choices: [
+          { text: "🥶 Caer debilitado y desanimado... huir llorando (FINAL 2: FRACASO)", next: 19, score: -25, item: "Sin_Buen_Humor" },
+          { text: "💥 Lanzarle Tanga de Limón a los ojos para cegarlo", next: 6, score: 50, item: null }
         ]
       }
     ];
@@ -441,7 +358,7 @@ class ElGambitero {
 
     this.overlay = document.createElement('div');
     this.overlay.id = 'gambitero-overlay';
-    this.overlay.innerHTML = '<div class="gambitero-container"><div class="gambitero-scanlines"></div><div id="gamb-stage"></div></div>';
+    this.overlay.innerHTML = '<div class="gambitero-container"><div class="gamb-crt"></div><div id="gamb-stage"></div></div>';
     document.body.appendChild(this.overlay);
     requestAnimationFrame(() => this.overlay.classList.add('active'));
 
@@ -449,14 +366,24 @@ class ElGambitero {
     this.renderScene(0);
   }
 
-  // 🎵 MUSIC
+  // 🎵 MUSIC (INCREDIBLE CRISIS SPOTIFY)
   _startMusic() {
-    const trackId = this.musicTracks[Math.floor(Math.random() * this.musicTracks.length)];
     const el = document.createElement('div');
     el.id = 'gambitero-music';
-    el.style.cssText = 'position:fixed;top:-9999px;width:1px;height:1px;';
-    el.innerHTML = `<iframe width="1" height="1" src="https://www.youtube.com/embed/${trackId}?autoplay=1&loop=1&playlist=${trackId}" allow="autoplay" frameborder="0"></iframe>`;
-    document.body.appendChild(el);
+    // Estilo Incredible Crisis para el reproductor
+    el.style.cssText = 'position:absolute; bottom:20px; right:20px; width:90%; max-width:320px; z-index:1000; box-shadow: 10px 10px 0px #FF00A0, -5px -5px 0px #00F0FF; border-radius:12px; transform: rotate(-3deg); transition: transform 0.2s;';
+    
+    // Añadir hover effect al vuelo
+    el.onmouseover = () => el.style.transform = 'rotate(0deg) scale(1.02)';
+    el.onmouseleave = () => el.style.transform = 'rotate(-3deg) scale(1)';
+
+    el.innerHTML = `<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/6BAoy65EuilzdKV2ZTfg6V?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+    
+    if (this.overlay) {
+      this.overlay.appendChild(el);
+    } else {
+      document.body.appendChild(el);
+    }
   }
 
   // 🎬 RENDER SCENE
@@ -483,7 +410,7 @@ class ElGambitero {
       : '';
 
     stage.innerHTML = `
-      <div class="gamb-scene">
+      <div class="gamb-scene gamb-shake-active" onanimationend="this.classList.remove(\'gamb-shake-active\')">
         <div class="gamb-hud">
           <span class="gamb-hud-score">💰 ${this.score} PTS</span>
           <span class="gamb-hud-scene">${scene.title}</span>
@@ -552,9 +479,21 @@ class ElGambitero {
     else if (this.score >= 100) title = 'HACKER NOVATO';
     else if (this.score >= 50) title = 'TURISTA DEL CÓDIGO';
 
+    let endingHTML = '';
+    // Determine ending type based on precisely where the player came from
+    if (this.currentScene === 17) {
+      endingHTML = '<div class="gamb-ending-text gamb-ending-1">★ FINAL 1: TRASCENDENCIA ★</div>';
+    } else if (this.currentScene === 19 || this.currentScene === 20 || this.currentScene === 21) {
+      endingHTML = '<div class="gamb-ending-text gamb-ending-2">☠️ FINAL 2: DERROTA MÁXIMA ☠️</div>';
+    } else if (this.currentScene === 24) {
+      endingHTML = '<div class="gamb-ending-text gamb-ending-3">🌀 FINAL 3: FELICIDAD ABSOLUTA 🌀<br><span style="font-size:1.2rem; color:#fff;">(SIEMPRE FUI FRAN PEREA)</span></div>';
+    }
+
     stage.innerHTML = `
       <div class="gamb-end">
         <div class="gamb-end-title">🏆 ${title} 🏆</div>
+        <div class="gamb-subtitle">DISEÑA TU AVENTURA 2</div>
+        ${endingHTML}
         <div class="gamb-end-score">${this.score} PUNTOS</div>
         <div class="gamb-end-items">Objetos: ${this.inventory.length > 0 ? this.inventory.join(', ') : 'ninguno'}</div>
         <div class="gamb-end-scenes">Escenas visitadas: ${Object.keys(this.decisions).length}/20</div>
@@ -642,7 +581,7 @@ class ElGambitero {
     };
 
     stage.innerHTML = `
-      <div class="gamb-scene">
+      <div class="gamb-scene gamb-shake-active" onanimationend="this.classList.remove(\'gamb-shake-active\')">
         <div class="gamb-hud">
           <span class="gamb-hud-score">💰 ${this.score} PTS</span>
           <span class="gamb-hud-scene">🎰 SLOT MACHINE</span>

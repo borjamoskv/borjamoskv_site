@@ -518,14 +518,11 @@ body.loaded .loader-overlay {
    HERO POETRY (Haiku & Aforismo)
    ═══════════════════════════════════════════════════════════════════ */
 .hero-poetry {
-  margin-top: 2rem;
-  max-width: 600px;
+  margin-top: 6.18rem; /* Golden ratio scaling */
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  z-index: 2;
-  position: relative;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 1.618rem; /* Golden Ratio */
 }
 
 /* --- HERO HAIKU: Central Aesthetic --- */
@@ -541,10 +538,12 @@ body.loaded .loader-overlay {
 }
 
 .haiku-line {
-  font-family: 'Space Grotesk', monospace;
-  font-size: clamp(1.5rem, 4vw, 3rem);
-  font-weight: 300;
-  color: var(--text-main);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.618rem, 3vw, 2.618rem); /* Golden Ratio */
+  color: var(--text-muted);
+  text-shadow: 0 4px 20px rgba(0,0,0,0.618);
+  margin: 0;
   letter-spacing: 0.05em;
   opacity: 0; /* JS will animate this */
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
@@ -1873,55 +1872,187 @@ body:has(.shock-wrapper:hover) {
   bottom: 80px;
   right: 20px;
   z-index: 9999;
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(204, 255, 0, 0.15);
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(204, 255, 0, 0.2);
   color: rgba(255, 255, 255, 0.7);
-  padding: 10px 16px;
-  border-radius: 999px;
+  padding: 12px 20px;
+  border-radius: 12px;
   cursor: pointer;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  gap: 2px;
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 
-.spatial-audio-btn:hover {
-  border-color: rgba(204, 255, 0, 0.4);
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 0 4px 30px rgba(204, 255, 0, 0.1);
-}
-
-.spatial-audio-btn.active {
-  border-color: rgba(204, 255, 0, 0.6);
-  color: #CCFF00;
-  animation: spatial-pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(204, 255, 0, 0.15);
-}
-
-@keyframes spatial-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(204, 255, 0, 0.15); }
-  50% { box-shadow: 0 0 35px rgba(204, 255, 0, 0.3); }
+.spatial-icon {
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 .spatial-label {
   font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.spatial-subtitle {
+  font-size: 0.45rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.2em;
+  font-weight: 400;
+}
+
+.spatial-audio-btn:hover {
+  border-color: rgba(204, 255, 0, 0.5);
+  color: #fff;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 35px rgba(204, 255, 0, 0.15), 0 0 60px rgba(204, 255, 0, 0.05);
+}
+
+.spatial-audio-btn.active {
+  border-color: rgba(204, 255, 0, 0.7);
+  color: #CCFF00;
+  background: rgba(10, 10, 10, 0.95);
+  animation: spatial-breathe 4s ease-in-out infinite;
+}
+
+.spatial-audio-btn.active .spatial-subtitle {
+  color: rgba(204, 255, 0, 0.5);
+}
+
+@keyframes spatial-breathe {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(204, 255, 0, 0.15), inset 0 0 8px rgba(204, 255, 0, 0.05);
+    border-color: rgba(204, 255, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(204, 255, 0, 0.3), inset 0 0 15px rgba(204, 255, 0, 0.1);
+    border-color: rgba(204, 255, 0, 0.8);
+  }
+}
+
+.spatial-control-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.spatial-control-container .spatial-audio-btn {
+  position: relative;
+  bottom: auto;
+  right: auto;
+}
+
+.spatial-binaural-controls {
+  display: flex;
+  gap: 8px;
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(204, 255, 0, 0.2);
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.spatial-binaural-controls button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.spatial-binaural-controls button:hover {
+  color: #fff;
+  border-color: rgba(204, 255, 0, 0.5);
+  background: rgba(204, 255, 0, 0.1);
+}
+
+.spatial-binaural-controls button.active {
+  color: #0A0A0A;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {
   .spatial-audio-btn {
     bottom: 70px;
-    right: 12px;
-    padding: 8px 12px;
-    font-size: 0.6rem;
+    right: 10px;
+    padding: 10px 14px;
+    font-size: 0.65rem;
   }
+  .spatial-icon { font-size: 1.1rem; }
+}
+
+/* =========================================================================
+   EL GAMBITERO: NO TOCAR JUMPSCARE (Axioma Ω_WTF)
+   ========================================================================= */
+
+#no-tocar-btn {
+    position: fixed;
+    bottom: 25px;
+    left: 20px;
+    background: #ff0000;
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding: 8px 16px;
+    border: 3px solid #000;
+    cursor: crosshair;
+    z-index: 9999;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    animation: pulseRed 0.5s infinite alternate;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+}
+@keyframes pulseRed {
+    from { box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); transform: scale(1); }
+    to { box-shadow: 0 0 25px rgba(255, 0, 0, 1); transform: scale(1.05); }
+}
+
+#elon-jumpscare-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000;
+    z-index: 100000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+#elon-jumpscare-overlay img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    filter: contrast(150%) saturate(200%) hue-rotate(90deg);
+}
+@keyframes elonShake {
+    0% { transform: translate(10px, 10px) rotate(0deg) scale(1.1); filter: invert(0); }
+    25% { transform: translate(-10px, -20px) rotate(-1deg) scale(1.2); filter: invert(1); }
+    50% { transform: translate(-20px, 10px) rotate(1deg) scale(1.1); filter: hue-rotate(180deg); }
+    75% { transform: translate(20px, 20px) rotate(-1deg) scale(1.3); filter: invert(1); }
+    100% { transform: translate(10px, -10px) rotate(0deg) scale(1.1); filter: sepia(100%); }
 }
 /* SECRET EGG */
 .secret-egg {
@@ -2404,5 +2535,27 @@ body:has(.shock-wrapper:hover) {
 .dj-sensor-value {
   color: var(--accent-primary);
   opacity: 0.7;
+}
+
+/* =========================================================================
+   STAR GUITAR AUDIO-REACTIVE OVERLAY (MICHEL GONDRY TRAIN EFFECT) 
+   ========================================================================= */
+.star-guitar-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+    opacity: 0.85;
+    mix-blend-mode: screen;
+}
+
+.sg-object {
+    position: absolute;
+    right: -30vw; /* Spawns outside the screen to the right */
+    will-change: transform;
+    backdrop-filter: blur(8px) contrast(1.2);
+    -webkit-backdrop-filter: blur(8px) contrast(1.2);
+    border-radius: 2px;
 }
 

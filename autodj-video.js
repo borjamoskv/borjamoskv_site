@@ -26,11 +26,60 @@ class AutoDJAesthetic {
     this.mixSequence = ['b9ktVQN48OU', 'x8E9HInpzE4']; // LES BUKO, GLITCH IN THE MIRROR
     this.mixIntervalMs = 40000; // 40 seconds per track
 
-    // Simulated BPM database for known tracks (fallback to 120-130 if unknown)
-    this.bpmCache = {};
+    // Real BPM mapping for known tracks to perfectly beatmatch
+    this.bpmCache = {
+      'b9ktVQN48OU': 128, // LES BUKO
+      'Otvpn9vfXOE': 130, // ME CAIGO Y ME LEVANTO
+      'Yr5CMXrJgIo': 118, // LINDSTROM
+      'NYhOQTcNLkA': 120, // ECOS
+      'x8E9HInpzE4': 125, // GLITCH
+      'ZB13zY5h4bc': 128, // EL CIGALA
+      'rmzKC8AYkVw': 126, // 32 ELEC TRACKS
+      '0S43IwBF0uM': 127, // STAR GUITAR
+      'UrX4mqXmapE': 105  // CHACARRON
+    };
+
+    // ═══════════════════════════════════════════
+    // CAMELOT WHEEL — Harmonic Key Mixing System
+    // ═══════════════════════════════════════════
+    // Maps tracks to Camelot keys. Compatible keys:
+    // Same number (8A->8A), ±1 number (8A->7A, 9A), inner/outer (8A->8B)
+    this.keyCache = {
+      'b9ktVQN48OU': '8A',  // LES BUKO (Am)
+      'Otvpn9vfXOE': '5A',  // ME CAIGO (Fm)
+      'Yr5CMXrJgIo': '10B', // LINDSTROM (Gb)
+      'NYhOQTcNLkA': '11A', // ECOS (F#m)
+      'x8E9HInpzE4': '8B',  // GLITCH (C)
+      'ZB13zY5h4bc': '7A',  // CIGALA (Gm)
+      'rmzKC8AYkVw': '9A',  // 32 ELEC (Bm)
+      '0S43IwBF0uM': '8A',  // STAR GUITAR (Am)
+      'UrX4mqXmapE': '8A'   // CHACARRON (Am)
+    };
+
+    // ═══════════════════════════════════════════
+    // ENERGY ARC — Professional Set Progression
+    // ═══════════════════════════════════════════
+    // Like a real DJ set: start ambient, build to peak, cool down
+    this.energyPhase = 'warmup'; // warmup -> buildup -> peak -> cooldown
+    this.setStartTime = Date.now();
+
+    // ═══════════════════════════════════════════
+    // HOT CUES — Avoid 0:00 direct intros
+    // ═══════════════════════════════════════════
+    this.cueCache = {
+      'b9ktVQN48OU': 5,   // LES BUKO
+      'Otvpn9vfXOE': 10,  // ME CAIGO
+      'Yr5CMXrJgIo': 30,  // LINDSTROM (Long intro)
+      'NYhOQTcNLkA': 15,  // ECOS
+      'x8E9HInpzE4': 20,  // GLITCH
+      'ZB13zY5h4bc': 5,   // CIGALA
+      'rmzKC8AYkVw': 10,  // 32 ELEC
+      '0S43IwBF0uM': 22,  // STAR GUITAR (Skip blank intro)
+      'UrX4mqXmapE': 14   // CHACARRON (Direct into vocals)
+    };
 
     // 🎤 Spotify-style DJ Voice & Mood System
-    this.currentMood = localStorage.getItem('moskv_dj_mood') || 'all';
+    this.currentMood = localStorage.getItem('moskv_dj_mood') || 'original';
     this.playedTracks = JSON.parse(localStorage.getItem('moskv_dj_history') || '[]');
     this.voiceEnabled = 'speechSynthesis' in window;
 
@@ -41,6 +90,20 @@ class AutoDJAesthetic {
     this.userProfile.lastSeen = new Date().toISOString();
     this.userProfile.totalListenSec = this.userProfile.totalListenSec || 0;
     localStorage.setItem('moskv_user', JSON.stringify(this.userProfile));
+
+    // ─── WEB AUDIO INDEPENDENT DUAL DECK ───
+    this.audioA = new Audio();
+    this.audioB = new Audio();
+    this.audioA.crossOrigin = "anonymous";
+    this.audioB.crossOrigin = "anonymous";
+    this.audioA.loop = true;
+    this.audioB.loop = true;
+    this.audioContext = null;
+    this.gainA = null;
+    this.gainB = null;
+    this.eqA = null;
+    this.eqB = null;
+    this.analyser = null;
 
     // 📦 TikTok Prefetch Queue (next 2 tracks pre-selected)
     this.prefetchQueue = [];
@@ -75,6 +138,8 @@ class AutoDJAesthetic {
     const startVidB = window.DATA.videoThumbnails[Math.floor(Math.random() * window.DATA.videoThumbnails.length)];
 
     this.masterBPM = this.getTrackBPM(startVidA);
+    this.audioA.src = `audio/${startVidA}.webm`;
+    this.audioB.src = `audio/${startVidB}.webm`;
 
     const commonParams = {
       autoplay: 1, controls: 0, disablekb: 1, fs: 0, 
@@ -95,19 +160,14 @@ class AutoDJAesthetic {
   }
 
   onPlayerReady(event, deckId) {
-    if (this.globalMuted) {
-      event.target.mute();
-    } else {
-      event.target.unMute();
-    }
+    // ALWAYS MUTE YOUTUBE VIDEOS. We use standalone Audio context for DJing.
+    event.target.mute();
     
     if (deckId === 'a') {
-      event.target.setVolume(100);
       event.target.setPlaybackRate(1.0); // Native speed initially
       document.getElementById('bg-video-a').style.opacity = 1;
       event.target.playVideo();
     } else {
-      event.target.setVolume(0);
       document.getElementById('bg-video-b').style.opacity = 0;
       event.target.pauseVideo();
     }
@@ -127,13 +187,11 @@ class AutoDJAesthetic {
 
   toggleGlobalMute() {
     this.globalMuted = !this.globalMuted;
-    const activePlayer = this.activeDeck === 'a' ? this.deckA : this.deckB;
     
-    if (this.globalMuted) {
-      if(this.deckA && typeof this.deckA.mute === 'function') this.deckA.mute();
-      if(this.deckB && typeof this.deckB.mute === 'function') this.deckB.mute();
-    } else {
-      if(activePlayer && typeof activePlayer.unMute === 'function') activePlayer.unMute();
+    // Mute/Unmute active Web Audio deck
+    if (this.audioContext) {
+        const activeGain = this.activeDeck === 'a' ? this.gainA : this.gainB;
+        activeGain.gain.setValueAtTime(this.globalMuted ? 0 : 1, this.audioContext.currentTime);
     }
     
     const iconUnmute = document.querySelector('.icon-unmute');
@@ -154,20 +212,125 @@ class AutoDJAesthetic {
     const unlockAudio = () => {
       if (this.audioUnlocked) return;
       this.audioUnlocked = true;
-      const activePlayer = this.activeDeck === 'a' ? this.deckA : this.deckB;
-      if (activePlayer && typeof activePlayer.unMute === 'function') {
-        if (!this.globalMuted) {
-            activePlayer.unMute();
-            activePlayer.setVolume(100);
-        }
+      
+      // Initialize Web Audio Engine Context on user interaction
+      if (!this.audioContext) {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          
+          this.analyser = this.audioContext.createAnalyser();
+          this.analyser.fftSize = 128; // Small size for punchy bass detection
+          
+          const createEQ = () => {
+              const low = this.audioContext.createBiquadFilter();
+              low.type = 'lowshelf'; low.frequency.value = 250;
+              const mid = this.audioContext.createBiquadFilter();
+              mid.type = 'peaking'; mid.frequency.value = 1000; mid.Q.value = 1;
+              const high = this.audioContext.createBiquadFilter();
+              high.type = 'highshelf'; high.frequency.value = 4000;
+              
+              // 🎛️ HPF (High-Pass Filter) for DJ Sweeps
+              const hpf = this.audioContext.createBiquadFilter();
+              hpf.type = 'highpass'; 
+              hpf.frequency.value = 0; // Inactive by default
+              hpf.Q.value = 2.0;       // Resonance for that classic Pioneer filter sound
+              
+              low.connect(mid).connect(high).connect(hpf);
+              return { low, mid, high, hpf, input: low, output: hpf };
+          };
+
+          // 🎛️ DUB ECHO FX BUS (Global auxiliary send)
+          this.echoDelay = this.audioContext.createDelay();
+          this.echoDelay.delayTime.value = (60 / this.masterBPM) * 0.75; // 3/4 beat delay
+          this.echoFeedback = this.audioContext.createGain();
+          this.echoFeedback.gain.value = 0.6; // 60% feedback loop
+          this.echoFilter = this.audioContext.createBiquadFilter();
+          this.echoFilter.type = 'highpass';
+          this.echoFilter.frequency.value = 500; // Wash out the lows in the echo
+          
+          this.echoDelay.connect(this.echoFeedback);
+          this.echoFeedback.connect(this.echoFilter);
+          this.echoFilter.connect(this.echoDelay);
+          // Echo return to main mix (will connect to compressor later)
+          this.echoReturn = this.audioContext.createGain();
+          this.echoDelay.connect(this.echoReturn);
+
+          const sourceA = this.audioContext.createMediaElementSource(this.audioA);
+          this.eqA = createEQ();
+          this.gainA = this.audioContext.createGain();
+          this.gainA.gain.value = this.activeDeck === 'a' ? (this.globalMuted ? 0 : 1) : 0;
+          sourceA.connect(this.eqA.input);
+          this.eqA.output.connect(this.gainA);
+          
+          // Aux sends to Echo
+          this.auxA = this.audioContext.createGain();
+          this.auxA.gain.value = 0;
+          this.eqA.output.connect(this.auxA);
+          this.auxA.connect(this.echoDelay);
+
+          const sourceB = this.audioContext.createMediaElementSource(this.audioB);
+          this.eqB = createEQ();
+          this.gainB = this.audioContext.createGain();
+          this.gainB.gain.value = this.activeDeck === 'b' ? (this.globalMuted ? 0 : 1) : 0;
+          sourceB.connect(this.eqB.input);
+          this.eqB.output.connect(this.gainB);
+          
+          // Aux sends to Echo
+          this.auxB = this.audioContext.createGain();
+          this.auxB.gain.value = 0;
+          this.eqB.output.connect(this.auxB);
+          this.auxB.connect(this.echoDelay);
+          
+          // ═══════════════════════════════════════════
+          // MASTER BUS: Compressor -> Analyser -> Output
+          // ═══════════════════════════════════════════
+          // Prevents clipping during dual-deck crossfades and normalizes loudness
+          this.compressor = this.audioContext.createDynamicsCompressor();
+          this.compressor.threshold.value = -24; // Start compressing at -24dB
+          this.compressor.knee.value = 12;        // Smooth curve
+          this.compressor.ratio.value = 4;         // 4:1 ratio (gentle squeeze)
+          this.compressor.attack.value = 0.003;    // Fast attack for transients
+          this.compressor.release.value = 0.15;    // Medium release for groove
+          
+          // Master Limiter (Brick wall at -1dB)
+          this.limiter = this.audioContext.createDynamicsCompressor();
+          this.limiter.threshold.value = -1;
+          this.limiter.knee.value = 0;
+          this.limiter.ratio.value = 20;
+          this.limiter.attack.value = 0.001;
+          this.limiter.release.value = 0.01;
+          
+          // Route: GainA/B -> Compressor -> Limiter -> Analyser -> Speakers
+          this.gainA.connect(this.compressor);
+          this.gainB.connect(this.compressor);
+          this.echoReturn.connect(this.compressor); // Route echo into master comp
+          this.compressor.connect(this.limiter);
+          this.limiter.connect(this.analyser);
+          this.analyser.connect(this.audioContext.destination);
+          
+          this._startAudioReactivity();
       }
+      
+      if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume();
+      }
+      
+      if (this.activeDeck === 'a') {
+          this.audioA.play().catch(e => console.warn(e));
+      } else {
+          this.audioB.play().catch(e => console.warn(e));
+      }
+
       // Start the automated DJ setlist loop once audio is unblocked
       console.log("[CORTEX AutoDJ] Starting Automated Mix Sequence (40s intervals)");
       this.initAgentUI();
       this.scheduleNextMix();
+      
+      // Remove mousemove/scroll listeners once unlocked to save perf
+      window.removeEventListener('mousemove', unlockAudio, { capture: true });
+      window.removeEventListener('scroll', unlockAudio, { capture: true });
     };
 
-    ['click', 'touchstart', 'keydown'].forEach(evt => 
+    ['click', 'touchstart', 'keydown', 'mousemove', 'scroll', 'wheel'].forEach(evt => 
       document.addEventListener(evt, unlockAudio, { once: true, capture: true })
     );
 
@@ -218,7 +381,7 @@ class AutoDJAesthetic {
             <span id="dj-next-in">--:--</span>
         </div>
         <div class="dj-eq">
-            <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            <div class="eq-bar" id="eq-low"></div><div class="eq-bar" id="eq-mid"></div><div class="eq-bar" id="eq-high"></div>
         </div>
         <div class="dj-mood-row" id="dj-mood-row">
             <button class="dj-mood-btn ${this.currentMood === 'all' ? 'active' : ''}" data-mood="all">ALL</button>
@@ -275,6 +438,13 @@ class AutoDJAesthetic {
     // Mood button click handlers
     this.agentUI.querySelectorAll('.dj-mood-btn').forEach(btn => {
         btn.style.pointerEvents = 'auto';
+        // Auto-select starting mood
+        if (btn.dataset.mood === this.currentMood) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+        
         btn.addEventListener('click', (e) => {
             this.currentMood = e.target.dataset.mood;
             localStorage.setItem('moskv_dj_mood', this.currentMood);
@@ -431,18 +601,129 @@ class AutoDJAesthetic {
     }
   }
 
-  _animateWaveform() {
-    if (!this.waveformBars || this.waveformBars.length === 0) return;
+  _startAudioReactivity() {
+    if (!this.analyser) return;
+    const freqData = new Uint8Array(this.analyser.frequencyBinCount);
+    
+    let lastPulse = 0;
     const animate = () => {
-        this.waveformBars.forEach(bar => {
-            const h = 5 + Math.random() * 95;
-            bar.style.height = `${h}%`;
-        });
-        this._waveRaf = requestAnimationFrame(() => {
-            setTimeout(animate, 80 + Math.random() * 60);
-        });
+        if (!this.globalMuted && !this.isBackgroundPausedByEmbed) {
+            this.analyser.getByteFrequencyData(freqData);
+            
+            // Render Waveform UI (Visualizer)
+            if (this.waveformBars) {
+                const step = Math.floor(freqData.length / this.waveformBars.length);
+                this.waveformBars.forEach((bar, i) => {
+                    const val = freqData[i * step] || 0;
+                    bar.style.height = `${(val / 255) * 100}%`;
+                });
+            }
+
+            // Real-time Bass detection for Audio-Reactive World Effect (Pulse) + Star Guitar
+            const bassAvg = (freqData[0] + freqData[1] + freqData[2] + freqData[3]) / 4;
+            // Snare/Clap detection (Mids/Highs)
+            const snareAvg = (freqData[20] + freqData[21] + freqData[22]) / 3;
+            
+            const vContainer = document.querySelector('.video-container');
+            
+            // 2026 Trend: Liquid Glass / Performance Inmersivo. Throttle kicks to 400ms max.
+            if (bassAvg > 220 && Date.now() - lastPulse > 400) {
+                if (vContainer) {
+                    gsap.killTweensOf(vContainer);
+                    gsap.to(vContainer, { scale: 1.015, filter: 'contrast(1.1) saturate(1.2)', duration: 0.05, ease: "power1.out", yoyo: true, repeat: 1 });
+                }
+                
+                lastPulse = Date.now();
+                
+                // Glow effect on active deck UI (Dopamine hit)
+                const activeUI = document.getElementById(`dj-deck-${this.activeDeck}-ui`);
+                if (activeUI) {
+                    gsap.to(activeUI, { color: '#ffffff', textShadow: '0 0 15px #ccff00', duration: 0.1, yoyo: true, repeat: 1 });
+                }
+
+                // --- 🚄 STAR GUITAR EFFECT (Spawn landscape objects on Kicks) ---
+                this._spawnStarGuitarObject('kick');
+            }
+            
+            // Spawn secondary objects on Snares
+            if (snareAvg > 150 && Math.random() > 0.7) {
+                 this._spawnStarGuitarObject('snare');
+            }
+        } else {
+             // Fake idle animation if muted
+             if (this.waveformBars) {
+                this.waveformBars.forEach(bar => {
+                    bar.style.height = `${5 + Math.random() * 10}%`;
+                });
+             }
+        }
+        
+        requestAnimationFrame(animate);
     };
     animate();
+  }
+
+  // 🚄 STAR GUITAR PHYSICS ENGINE (60fps DOM spawner)
+  _spawnStarGuitarObject(type) {
+      if (typeof gsap === 'undefined') return;
+      
+      let overlay = document.getElementById('sg-overlay');
+      if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.id = 'sg-overlay';
+          overlay.className = 'star-guitar-overlay';
+          document.body.appendChild(overlay);
+      }
+      
+      const obj = document.createElement('div');
+      obj.className = 'sg-object';
+      
+      // Determine physical properties based on sound type
+      // Dopamine aesthetics: stark geometry, blurred silhouettes
+      let width, height, bottom, bg, duration, blur;
+      if (type === 'kick') {
+          // Pillars / large structures (foreground, fast)
+          width = 20 + Math.random() * 80 + 'vw';
+          height = 40 + Math.random() * 60 + 'vh';
+          bottom = '0px';
+          bg = `rgba(5, 5, 5, ${0.7 + Math.random() * 0.3})`;
+          duration = 1.5 + Math.random() * 1.5; // Relies on master BPM theoretically, but random looks ok
+          blur = `blur(${2 + Math.random() * 5}px)`;
+      } else {
+          // Snares / secondary beats: passing lights, distant buildings (background, slower)
+          width = 5 + Math.random() * 20 + 'vw';
+          height = 5 + Math.random() * 10 + 'vh';
+          bottom = 10 + Math.random() * 40 + 'vh';
+          bg = `rgba(204, 255, 0, ${0.1 + Math.random() * 0.4})`; // Cyber Lime highlights
+          duration = 3 + Math.random() * 2;
+          blur = `blur(${8 + Math.random() * 10}px)`;
+      }
+      
+      obj.style.width = width;
+      obj.style.height = height;
+      obj.style.bottom = bottom;
+      obj.style.background = bg;
+      obj.style.backdropFilter = blur;
+      overlay.appendChild(obj);
+      
+      // Hardware-accelerated GPU 60fps translation across the screen
+      gsap.fromTo(obj, 
+          { x: '100vw' }, 
+          { 
+              x: '-150vw', 
+              duration: duration, 
+              ease: "none", 
+              onComplete: () => {
+                  if (obj.parentNode) obj.parentNode.removeChild(obj);
+              }
+          }
+      );
+  }
+
+  _animateWaveform() {
+      // Stub: Real audio reactivity overrides this once unlocked.
+      if (!this.waveformBars) return;
+      this.waveformBars.forEach(bar => bar.style.height = '5%');
   }
 
   _updateElapsed() {
@@ -465,24 +746,32 @@ class AutoDJAesthetic {
     if (nextEl) nextEl.innerText = `${rMins}:${rSecs}`;
   }
 
-  // 🎤 SYNTHETIC VOICE DJ (Spotify-style)
+  // 🎤 MICA STITCH AI VOICE (Agéntica - EUSKERA)
   _djSpeak(text) {
     if (!this.voiceEnabled) return;
     try {
         window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.rate = 0.95;
-        utter.pitch = 0.8;
-        utter.volume = 0.7;
-        // Prefer English voice for DJ feel
+        // MICA Stitch is a high-tech synthesized persona
+        const formattedText = text.replace(/BPM/g, "B. P. M.");
+        const utter = new SpeechSynthesisUtterance(formattedText);
+        utter.rate = 1.05; // Fast, computational
+        utter.pitch = 0.4; // Low, assertive, synthetic
+        utter.volume = 0.6; // Not too loud, sits in the mix
+        
         const voices = window.speechSynthesis.getVoices();
-        const djVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Daniel')) 
-                      || voices.find(v => v.lang.startsWith('en'))
+        // Prefer Basque (eu-ES) if available, otherwise Spanish (es-ES) for acceptable pronunciation of Euskera
+        const djVoice = voices.find(v => v.lang.startsWith('eu')) 
+                      || voices.find(v => v.name.includes('Monica'))
+                      || voices.find(v => v.lang.startsWith('es'))
                       || voices[0];
         if (djVoice) utter.voice = djVoice;
+        
+        // Add minimal echo effect if possible (Web Audio API hack)
         window.speechSynthesis.speak(utter);
+        
+        console.log(`[🎤 MICA STITCH]: "${text}"`);
     } catch(e) {
-        console.warn('[MOSKV DJ] Speech synthesis failed:', e);
+        console.warn('[MICA STITCH] Speech synthesis failed:', e);
     }
   }
 
@@ -493,6 +782,13 @@ class AutoDJAesthetic {
     let pool = window.DATA.works;
     if (this.currentMood !== 'all') {
         pool = pool.filter(w => w.categories && w.categories.includes(this.currentMood));
+        
+        // CORTEX V5 OVERRIDE: ALWAYS INCLUDE "LES BUKO" (b9ktVQN48OU) if not already present
+        // Because "es que el LES BUKO queda bRUTAL"
+        const lesBuko = window.DATA.works.find(w => w.id === 'b9ktVQN48OU');
+        if (lesBuko && !pool.some(w => w.id === 'b9ktVQN48OU')) {
+            pool.push(lesBuko);
+        }
     }
     // Filter out recently played (avoid repeats)
     const ids = pool.map(w => w.id).filter(id => !this.playedTracks.includes(id));
@@ -514,6 +810,97 @@ class AutoDJAesthetic {
         if (this.playedTracks.length > 20) this.playedTracks.shift();
         localStorage.setItem('moskv_dj_history', JSON.stringify(this.playedTracks));
     }
+  }
+
+  // ═══════════════════════════════════════════
+  // CAMELOT HARMONIC SELECTION
+  // ═══════════════════════════════════════════
+  // Returns compatible Camelot keys for mixing
+  _getCompatibleKeys(key) {
+      if (!key) return [];
+      const num = parseInt(key);
+      const letter = key.replace(/[0-9]/g, '');
+      const otherLetter = letter === 'A' ? 'B' : 'A';
+      const compatible = [
+          key,                                          // Same key
+          `${((num) % 12) + 1}${letter}`,               // +1
+          `${((num - 2 + 12) % 12) + 1}${letter}`,      // -1
+          `${num}${otherLetter}`                         // Inner/Outer
+      ];
+      return compatible;
+  }
+
+  // Filters tracks that are harmonically compatible with the current one
+  _getHarmonicTracks(pool) {
+      const currentTrackId = this.activeDeck === 'a' 
+          ? this.audioA.src.split('/').pop()?.replace('.webm', '')
+          : this.audioB.src.split('/').pop()?.replace('.webm', '');
+      
+      const currentKey = this.keyCache[currentTrackId];
+      if (!currentKey) return pool; // No key data, return unfiltered
+      
+      const compatibleKeys = this._getCompatibleKeys(currentKey);
+      const harmonicPool = pool.filter(id => {
+          const trackKey = this.keyCache[id];
+          return trackKey && compatibleKeys.includes(trackKey);
+      });
+      
+      // If no harmonic matches, return full pool (fallback)
+      return harmonicPool.length > 0 ? harmonicPool : pool;
+  }
+
+  // ═══════════════════════════════════════════
+  // ENERGY ARC PROGRESSION
+  // ═══════════════════════════════════════════
+  _updateEnergyPhase() {
+      const elapsedMin = (Date.now() - this.setStartTime) / 60000;
+      if (elapsedMin < 3) {
+          this.energyPhase = 'warmup';
+      } else if (elapsedMin < 8) {
+          this.energyPhase = 'buildup';
+      } else if (elapsedMin < 15) {
+          this.energyPhase = 'peak';
+      } else {
+          this.energyPhase = 'cooldown';
+      }
+      return this.energyPhase;
+  }
+
+  // MICA STITCH CONTEXTUAL INSIGHT (fires every 3rd mix)
+  _stitchInsight() {
+      if (this.mixCount % 3 !== 0) return;
+      
+      const phase = this._updateEnergyPhase();
+      const listenMin = Math.round((Date.now() - this.setStartTime) / 60000);
+      const totalListenHrs = Math.round((this.userProfile.totalListenSec || 0) / 3600 * 10) / 10;
+      
+      const insights = {
+          warmup: [
+              `Berotzen. ${listenMin} minutu igaro dira. Tentsioa igotzen.`,
+              `Lehen fasea. Energia baxuko inguratzailea detektatuta. Igoera prestatzen.`,
+              `Saioa ${this.userProfile.visits}. Ongi etorri berriro. Maiztasun-eskanerra hasieratzen.`
+          ],
+          buildup: [
+              `Energia igotzen. BPM altuagoko barrutira aldatzen.`,
+              `Dopamina-kurba gorantz. ${this.mixCount} nahasketa sakon.`,
+              `Momentua hartzen. ${totalListenHrs} ordu sistema osoan.`
+          ],
+          peak: [
+              `Energia maximoa. Sistema guztiak potentzia gorenean.`,
+              `${this.mixCount} nahasketa. Hau da gailurra. Eutsi goiari.`,
+              `Potentzia osoa. Konpromiso neurala masa kritikoan.`
+          ],
+          cooldown: [
+              `Jaitsiera hasten. ${listenMin} minutu. Dezelerazio mailakatua.`,
+              `Hoztea hasita. BPM inguratzailea murrizten.`,
+              `Saioa amaitzen ari da. ${this.mixCount} nahasketa burututa.`
+          ]
+      };
+      
+      const pool = insights[phase] || insights.warmup;
+      const msg = pool[Math.floor(Math.random() * pool.length)];
+      this._djSpeak(msg);
+      console.log(`[🧠 MICA STITCH INSIGHT] Phase: ${phase} | "${msg}"`);
   }
 
   scheduleNextMix() {
@@ -540,7 +927,48 @@ class AutoDJAesthetic {
     if (typeof this.deckA.getPlayerState !== 'function' || typeof this.deckB.getPlayerState !== 'function') return;
 
     if (this.autoMixTimer) clearTimeout(this.autoMixTimer);
-    this.isCrossfading = true;
+    
+    // ==========================================
+    // CORTEX V5 STRUCTURAL MIXING (PHRASE SYNC)
+    // ==========================================
+    // A professional DJ mixes on 32-beat phrases.
+    // We calculate how many beats have passed since track start.
+    const now = Date.now();
+    const elapsedMs = now - this.trackStartTime;
+    const msPerBeat = (60 / this.masterBPM) * 1000;
+    const msPerPhrase = msPerBeat * 32;
+    
+    // We don't phrase sync before 30 seconds have passed (to avoid instant skips)
+    if (elapsedMs > 30000 && this.agentUI) {
+        const nextPhraseTimeMs = Math.ceil(elapsedMs / msPerPhrase) * msPerPhrase;
+        let waitTimeMs = nextPhraseTimeMs - elapsedMs;
+
+        // If the drop is less than 2s away, it's too late to cue, wait for the NEXT phrase (+32 beats)
+        if (waitTimeMs < 2000) {
+            waitTimeMs += msPerPhrase;
+        }
+
+        console.log(`[CORTEX AutoDJ] Cued mix for next 32-beat drop. Waiting ${waitTimeMs}ms...`);
+        this.isCrossfading = true; // Block other clicks while cueing
+
+        if (this.agentUI) {
+            this.agentUI.classList.remove('idle');
+            this.agentUI.classList.add('syncing');
+            document.getElementById('dj-status-text').innerText = `SYNCING PHRASES... WAITING FOR DROP`;
+        }
+
+        setTimeout(() => {
+            this._executeCrossfade(forcedNextTrack);
+        }, waitTimeMs);
+
+    } else {
+        // Immediate crossfade (e.g. forced or first minute)
+        this.isCrossfading = true;
+        this._executeCrossfade(forcedNextTrack);
+    }
+  }
+
+  _executeCrossfade(forcedNextTrack) {
 
     const fromDeckId = this.activeDeck;
     const toDeckId = this.activeDeck === 'a' ? 'b' : 'a';
@@ -553,6 +981,8 @@ class AutoDJAesthetic {
 
     const availableTracks = window.DATA.videoThumbnails;
     const moodPool = this._getTracksForMood();
+    // ═══ HARMONIC FILTERING (Camelot Wheel) ═══
+    const harmonicPool = this._getHarmonicTracks(moodPool);
     // Use prefetch queue if available (TikTok-style)
     let nextTrack;
     if (forcedNextTrack) {
@@ -560,7 +990,7 @@ class AutoDJAesthetic {
     } else if (this.prefetchQueue.length > 0) {
         nextTrack = this.prefetchQueue.shift();
     } else {
-        nextTrack = moodPool[Math.floor(Math.random() * moodPool.length)] || availableTracks[Math.floor(Math.random() * availableTracks.length)];
+        nextTrack = harmonicPool[Math.floor(Math.random() * harmonicPool.length)] || availableTracks[Math.floor(Math.random() * availableTracks.length)];
     }
     this._recordTrack(nextTrack);
     // Immediately refill prefetch queue for NEXT transition
@@ -568,6 +998,20 @@ class AutoDJAesthetic {
     
     const nextBPM = this.getTrackBPM(nextTrack);
     console.log(`[CORTEX Auto-DJ] Syncing BPM: Master(${this.masterBPM}) <- Target(${nextBPM})`);
+    
+    // ═══════════════════════════════════════════
+    // DYNAMIC FADE DURATION (Long Blends - Pro DJ)
+    // ═══════════════════════════════════════════
+    // A real DJ blends compatible tracks over 16-32 beats. At 125BPM, 32 beats is ~15 seconds.
+    // Instead of cutting directly (direct mix), we do progressive blends.
+    const bpmDelta = Math.abs(this.masterBPM - nextBPM);
+    if (bpmDelta > 10) {
+        this.fadeDurationMs = 6000; // Big gap -> Still smooth but safer
+    } else if (bpmDelta > 5) {
+        this.fadeDurationMs = 8000; // Medium gap -> 8 sec blend
+    } else {
+        this.fadeDurationMs = 12000; // Perfect match -> 12 second deep progressive blend!
+    }
     
     // Calculate pitch/time-stretch ratio to match master tempo
     // YouTube API limits playback rates to certain floating points, but accepts generic numbers.
@@ -601,73 +1045,176 @@ class AutoDJAesthetic {
              });
         }
         
-        // 🎤 DJ Voice Announcement
-        const moodLabel = this.currentMood === 'all' ? '' : ` ${this.currentMood} vibes.`;
-        this._djSpeak(`Incoming. ${trackTitle}. ${nextBPM} B P M.${moodLabel} Syncing now.`);
+        // 🎤 DJ Voice Announcement (Euskera)
+        const moodLabel = this.currentMood === 'all' ? '' : ` ${this.currentMood} giroa.`;
+        const keyLabel = this.keyCache[nextTrack] ? ` ${this.keyCache[nextTrack]} tonuan.` : '';
+        this._djSpeak(`Sartzen. ${trackTitle}. ${nextBPM} BPM.${keyLabel}${moodLabel} Sinkronizatzen orain.`);
+        
+        // Fire MICA Stitch contextual insight (every 3rd mix)
+        this._stitchInsight();
     }
 
     toPlayer.mute();
-    toPlayer.loadVideoById({videoId: nextTrack, startSeconds: 0});
+    const cuePoint = this.cueCache[nextTrack] || 0;
+    toPlayer.loadVideoById({videoId: nextTrack, startSeconds: cuePoint});
+    
+    // Sync external audio too
+    const toAudio = toDeckId === 'a' ? this.audioA : this.audioB;
+    const fromAudio = fromDeckId === 'a' ? this.audioA : this.audioB;
+    toAudio.src = `audio/${nextTrack}.webm`;
+    // We can't practically cue HTML5 audio over network exactly without seeking,
+    // but we can set currentTime when it buffers.
+    toAudio.onloadeddata = () => {
+        toAudio.currentTime = cuePoint;
+    };
+    
     // Apply Harmonic Pitch & Rhythm Sync
     setTimeout(() => {
         if(typeof toPlayer.setPlaybackRate === 'function') {
            toPlayer.setPlaybackRate(syncRate);
         }
+        toAudio.playbackRate = syncRate;
+        toAudio.preservesPitch = false; // Vinyl feel
     }, 500);
 
-    toPlayer.setVolume(0);
     toPlayer.playVideo();
 
     if (typeof gsap !== 'undefined') {
       setTimeout(() => {
-        // Visual fade
-        gsap.to(fromEl, { opacity: 0, duration: this.fadeDurationMs / 1000, ease: "power2.inOut" });
-        gsap.to(toEl, { opacity: 1, duration: this.fadeDurationMs / 1000, ease: "power2.inOut" });
+        // Remotion-Inspired Visual Transitions
+        const transitionTypes = ['fade', 'kenburns', 'iris', 'swipe', 'glitch'];
+        const tType = transitionTypes[Math.floor(Math.random() * transitionTypes.length)];
+        console.log(`[CORTEX AutoDJ] Visual Transition: ${tType.toUpperCase()}`);
         
-        // Audio fade
-        if (!this.globalMuted) {
-          toPlayer.unMute();
-          const volProxy = { from: 100, to: 0 };
-          gsap.to(volProxy, {
-            from: 0,
-            to: 100,
-            duration: this.fadeDurationMs / 1000,
-            ease: "none",
-            onUpdate: () => {
-              fromPlayer.setVolume(volProxy.from);
-              toPlayer.setVolume(volProxy.to);
-            },
-            onComplete: () => {
-              fromPlayer.pauseVideo();
-              this.activeDeck = toDeckId;
-              this.isCrossfading = false;
-              if (this.agentUI) {
-                  this.agentUI.classList.remove('syncing');
-                  document.getElementById('dj-status-text').innerText = 'MIXING COMPLETE';
-                  setTimeout(() => {
-                      this.agentUI.classList.add('idle');
-                      document.getElementById('dj-status-text').innerText = 'READY / IDLE';
-                  }, 3000);
-              }
-              this.scheduleNextMix();
+        // Reset base styles just in case
+        gsap.set(toEl, { clipPath: 'none', scale: 1, filter: 'none', opacity: 0 });
+        gsap.set(fromEl, { clipPath: 'none', scale: 1, filter: 'none' });
+
+        const dur = this.fadeDurationMs / 1000;
+
+        switch(tType) {
+            case 'kenburns':
+                gsap.set(toEl, { scale: 1.1, opacity: 0 });
+                gsap.to(toEl, { opacity: 1, scale: 1, duration: dur, ease: "power2.out" });
+                gsap.to(fromEl, { opacity: 0, scale: 1.05, duration: dur, ease: "power2.in" });
+                break;
+            case 'iris':
+                gsap.set(toEl, { opacity: 1, clipPath: 'circle(0% at 50% 50%)' });
+                gsap.to(toEl, { clipPath: 'circle(150% at 50% 50%)', duration: dur, ease: "power3.inOut" });
+                gsap.to(fromEl, { opacity: 0, duration: dur, ease: "power3.inOut" });
+                break;
+            case 'swipe':
+                // Swipe from left to right using inset
+                gsap.set(toEl, { opacity: 1, clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)' });
+                gsap.to(toEl, { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: dur, ease: "power4.inOut" });
+                gsap.to(fromEl, { opacity: 0, duration: dur, delay: dur * 0.5 });
+                break;
+            case 'glitch':
+                gsap.set(toEl, { opacity: 0 });
+                const tl = gsap.timeline();
+                tl.to(toEl, { opacity: 1, duration: 0.1 })
+                  .to(toEl, { opacity: 0, duration: 0.1 })
+                  .to(toEl, { opacity: 1, duration: 0.1 })
+                  .to(toEl, { opacity: 0, duration: 0.2 })
+                  .to(toEl, { opacity: 1, duration: dur - 0.5, ease: "power2.out" });
+                gsap.to(fromEl, { opacity: 0, duration: dur, ease: "steps(4)" });
+                break;
+            default: // fade
+                gsap.to(fromEl, { opacity: 0, duration: dur, ease: "power3.inOut" });
+                gsap.to(toEl, { opacity: 1, duration: dur, ease: "power3.inOut" });
+                break;
+        }
+        
+        // Fluid Audio Equal-Power crossfade via Web Audio API
+        if (!this.globalMuted && this.audioContext) {
+            toAudio.play().catch(e => console.warn(e));
+            
+            const activeGain = toDeckId === 'a' ? this.gainA : this.gainB;
+            const prevGain = toDeckId === 'a' ? this.gainB : this.gainA;
+            const now = this.audioContext.currentTime;
+            const fadeSecs = this.fadeDurationMs / 1000;
+            
+            // Equal Power Crossfader
+            const steps = 30;
+            const curveIn = new Float32Array(steps);
+            const curveOut = new Float32Array(steps);
+            for (let i = 0; i < steps; i++) {
+                const step = i / (steps - 1);
+                curveIn[i] = Math.sin(step * Math.PI / 2);
+                curveOut[i] = Math.cos(step * Math.PI / 2);
             }
-          });
-        } else {
-          setTimeout(() => {
+            
+            activeGain.gain.cancelScheduledValues(now);
+            activeGain.gain.setValueAtTime(0, now);
+            activeGain.gain.setValueCurveAtTime(curveIn, now, fadeSecs);
+            
+            prevGain.gain.cancelScheduledValues(now);
+            prevGain.gain.setValueAtTime(1, now);
+            prevGain.gain.setValueCurveAtTime(curveOut, now, fadeSecs);
+
+            // DJ BASS SWAP (EQ Routing) + HPF SWEEP + ECHO OUT
+            const activeEQ = toDeckId === 'a' ? this.eqA : this.eqB;
+            const prevEQ = toDeckId === 'a' ? this.eqB : this.eqA;
+            const prevAux = toDeckId === 'a' ? this.auxB : this.auxA;
+            
+            if (activeEQ && prevEQ) {
+                // HPF Sweep: Slowly wash out the previous track while fading
+                prevEQ.hpf.frequency.setValueAtTime(0, now);
+                prevEQ.hpf.frequency.exponentialRampToValueAtTime(3000, now + fadeSecs);
+                
+                // Echo Out FX: Send previous track to Dub Delay halfway through the crossfade
+                prevAux.gain.setValueAtTime(0, now);
+                prevAux.gain.linearRampToValueAtTime(0.8, now + (fadeSecs * 0.7));
+                prevAux.gain.linearRampToValueAtTime(0, now + fadeSecs);
+                
+                // Swap Lows
+                prevEQ.low.gain.setTargetAtTime(-30, now, 0.5); // Kill old bass fast
+                activeEQ.low.gain.setValueAtTime(-20, now);
+                activeEQ.low.gain.setTargetAtTime(0, now + (fadeSecs * 0.5), 0.5); // Bring new bass midway
+                
+                // Keep Mids/Highs for color
+                prevEQ.high.gain.setTargetAtTime(-10, now, fadeSecs);
+                activeEQ.high.gain.setValueAtTime(5, now);
+                activeEQ.high.gain.setTargetAtTime(0, now + fadeSecs, 0.5);
+                
+                // Reset EQs on complete
+                setTimeout(() => {
+                    if (prevEQ) { 
+                        prevEQ.low.gain.value = 0; 
+                        prevEQ.high.gain.value = 0; 
+                        prevEQ.hpf.frequency.value = 0;
+                    }
+                    if (activeEQ) { 
+                        activeEQ.low.gain.value = 0; 
+                        activeEQ.high.gain.value = 0; 
+                        activeEQ.hpf.frequency.value = 0;
+                    }
+                }, this.fadeDurationMs + 100);
+            }
+        }
+        
+        // Cleanup visuals and inactive decks after crossfade
+        setTimeout(() => {
             fromPlayer.pauseVideo();
+            fromAudio.pause();
             this.activeDeck = toDeckId;
             this.isCrossfading = false;
+            // Record new track start time NOW (when the drop hit) to align the new phrase
+            this.trackStartTime = Date.now();
+            
             if (this.agentUI) {
                 this.agentUI.classList.remove('syncing');
                 document.getElementById('dj-status-text').innerText = 'MIXING COMPLETE';
                 setTimeout(() => {
-                    this.agentUI.classList.add('idle');
-                    document.getElementById('dj-status-text').innerText = 'READY / IDLE';
+                    if (!this.isCrossfading) {
+                        this.agentUI.classList.add('idle');
+                        document.getElementById('dj-status-text').innerText = 'READY / IDLE';
+                    }
                 }, 3000);
             }
             this.scheduleNextMix();
-          }, this.fadeDurationMs);
-        }
+        }, this.fadeDurationMs + 100);
+        
       }, 1000); // Allow buffering and rate-setting
     }
   }
@@ -703,21 +1250,28 @@ class AutoDJAesthetic {
     if (this.isBackgroundPausedByEmbed) return;
     this.isBackgroundPausedByEmbed = true;
     
+    // Pause both Video & new Audio engines
     const activePlayer = this.activeDeck === 'a' ? this.deckA : this.deckB;
     if (activePlayer && typeof activePlayer.pauseVideo === 'function') {
       activePlayer.pauseVideo();
     }
+    const activeAudio = this.activeDeck === 'a' ? this.audioA : this.audioB;
+    if (activeAudio) activeAudio.pause();
   }
 
   resumeBackgroundMusic() {
     if (!this.isBackgroundPausedByEmbed) return;
     this.isBackgroundPausedByEmbed = false;
     
-    if (!this.globalMuted) {
-      const activePlayer = this.activeDeck === 'a' ? this.deckA : this.deckB;
-      if (activePlayer && typeof activePlayer.playVideo === 'function') {
-        activePlayer.playVideo();
-      }
+    const activePlayer = this.activeDeck === 'a' ? this.deckA : this.deckB;
+    const activeAudio = this.activeDeck === 'a' ? this.audioA : this.audioB;
+    
+    if (activePlayer && typeof activePlayer.playVideo === 'function') {
+      activePlayer.playVideo();
+    }
+    
+    if (!this.globalMuted && activeAudio) {
+        activeAudio.play().catch(e => console.warn(e));
     }
   }
 }
