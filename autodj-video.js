@@ -29,6 +29,22 @@ class AutoDJAesthetic {
     // Simulated BPM database for known tracks (fallback to 120-130 if unknown)
     this.bpmCache = {};
 
+    // 🎤 Spotify-style DJ Voice & Mood System
+    this.currentMood = localStorage.getItem('moskv_dj_mood') || 'all';
+    this.playedTracks = JSON.parse(localStorage.getItem('moskv_dj_history') || '[]');
+    this.voiceEnabled = 'speechSynthesis' in window;
+
+    // 💾 Persistent User Memory (TikTok-style)
+    this.userProfile = JSON.parse(localStorage.getItem('moskv_user') || '{}');
+    this.userProfile.visits = (this.userProfile.visits || 0) + 1;
+    this.userProfile.firstSeen = this.userProfile.firstSeen || new Date().toISOString();
+    this.userProfile.lastSeen = new Date().toISOString();
+    this.userProfile.totalListenSec = this.userProfile.totalListenSec || 0;
+    localStorage.setItem('moskv_user', JSON.stringify(this.userProfile));
+
+    // 📦 TikTok Prefetch Queue (next 2 tracks pre-selected)
+    this.prefetchQueue = [];
+
     // Inject YouTube API
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
@@ -204,7 +220,27 @@ class AutoDJAesthetic {
         <div class="dj-eq">
             <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
         </div>
+        <div class="dj-mood-row" id="dj-mood-row">
+            <button class="dj-mood-btn ${this.currentMood === 'all' ? 'active' : ''}" data-mood="all">ALL</button>
+            <button class="dj-mood-btn ${this.currentMood === 'ambient' ? 'active' : ''}" data-mood="ambient">AMBIENT</button>
+            <button class="dj-mood-btn ${this.currentMood === 'techno' ? 'active' : ''}" data-mood="techno">TECHNO</button>
+            <button class="dj-mood-btn ${this.currentMood === 'experimental' ? 'active' : ''}" data-mood="experimental">EXP</button>
+            <button class="dj-mood-btn ${this.currentMood === 'electronic' ? 'active' : ''}" data-mood="electronic">ELEC</button>
+        </div>
+        <div class="dj-prefetch" id="dj-prefetch">
+            <span class="dj-prefetch-label">NEXT UP ▸</span>
+            <span id="dj-prefetch-1">---</span>
+            <span id="dj-prefetch-2">---</span>
+        </div>
         <div class="dj-status" id="dj-status-text">INITIALIZING CORE...</div>
+        <div class="dj-sensors" id="dj-sensors">
+            <div class="dj-sensor-item"><span class="sensor-icon">🔋</span> <span class="dj-sensor-value" id="sensor-battery">--</span></div>
+            <div class="dj-sensor-item"><span class="sensor-icon">🌐</span> <span class="dj-sensor-value" id="sensor-location">--</span></div>
+            <div class="dj-sensor-item"><span class="sensor-icon">📡</span> <span class="dj-sensor-value" id="sensor-network">--</span></div>
+            <div class="dj-sensor-item"><span class="sensor-icon">🧠</span> <span class="dj-sensor-value" id="sensor-memory">--</span></div>
+            <div class="dj-sensor-item"><span class="sensor-icon">🕓</span> <span class="dj-sensor-value" id="sensor-time-mood">--</span></div>
+        </div>
+        <div class="dj-visits" id="dj-visits">VISIT #${this.userProfile.visits}</div>
     `;
     document.body.appendChild(this.agentUI);
 
@@ -216,6 +252,9 @@ class AutoDJAesthetic {
     this.waveformBars = document.querySelectorAll('.wv-bar');
     this._animateWaveform();
 
+    // 🚀 SCI-FI SENSORS INITIALIZATION
+    this._initSensors();
+
     // Elapsed timer
     this.trackStartTime = Date.now();
     this.elapsedTimer = setInterval(() => this._updateElapsed(), 1000);
@@ -225,7 +264,171 @@ class AutoDJAesthetic {
         document.getElementById('dj-track-a').innerText = titleA.substring(0,18);
         document.getElementById('dj-status-text').innerText = 'LIVE';
         document.getElementById('dj-bpm-master').innerText = `${this.masterBPM} BPM`;
+        // Prefetch first queue
+        this._prefetchNext();
+        // Welcome back message for returning users
+        if (this.userProfile.visits > 1) {
+            this._djSpeak(`Welcome back. Visit number ${this.userProfile.visits}. Let's go.`);
+        }
     }, 2500);
+
+    // Mood button click handlers
+    this.agentUI.querySelectorAll('.dj-mood-btn').forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.addEventListener('click', (e) => {
+            this.currentMood = e.target.dataset.mood;
+            localStorage.setItem('moskv_dj_mood', this.currentMood);
+            this.agentUI.querySelectorAll('.dj-mood-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById('dj-status-text').innerText = `MOOD: ${this.currentMood.toUpperCase()}`;
+            this._prefetchNext();
+            this._djSpeak(`Mood set to ${this.currentMood}. Filtering tracks.`);
+        });
+    });
+
+    // Persist listen time every 10s
+    setInterval(() => {
+        this.userProfile.totalListenSec += 10;
+        localStorage.setItem('moskv_user', JSON.stringify(this.userProfile));
+    }, 10000);
+  }
+
+  // 🚀 CIENCIA FICCIÓN: Hardware & Environment Sensors
+  _initSensors() {
+    // 🔋 BATTERY API
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+            const update = () => {
+                const pct = Math.round(battery.level * 100);
+                const el = document.getElementById('sensor-battery');
+                if (el) el.innerText = `${pct}%${battery.charging ? '⚡' : ''}`;
+                // Low battery DJ commentary
+                if (pct < 15 && !this._lowBatteryWarned) {
+                    this._lowBatteryWarned = true;
+                    this._djSpeak('Warning. Device battery critical. Switching to power save ambient mode.');
+                    // Auto-switch to ambient for lower CPU usage
+                    if (this.currentMood !== 'ambient') {
+                        this.currentMood = 'ambient';
+                        this.agentUI?.querySelectorAll('.dj-mood-btn').forEach(b => {
+                            b.classList.toggle('active', b.dataset.mood === 'ambient');
+                        });
+                    }
+                }
+            };
+            update();
+            battery.addEventListener('levelchange', update);
+            battery.addEventListener('chargingchange', update);
+        });
+    }
+
+    // 🌐 GEOLOCATION (reverse geocode via free API)
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            const el = document.getElementById('sensor-location');
+            // Reverse geocode
+            fetch(`https://geocode.maps.co/reverse?lat=${latitude}&lon=${longitude}`)
+                .then(r => r.json())
+                .then(data => {
+                    const city = data?.address?.city || data?.address?.town || data?.address?.village || '??';
+                    const country = data?.address?.country_code?.toUpperCase() || '';
+                    if (el) el.innerText = `${city}, ${country}`;
+                    this.userProfile.lastCity = city;
+                    localStorage.setItem('moskv_user', JSON.stringify(this.userProfile));
+                    this._djSpeak(`Broadcasting from ${city}. Let's go.`);
+                })
+                .catch(() => {
+                    if (el) el.innerText = `${latitude.toFixed(1)}°, ${longitude.toFixed(1)}°`;
+                });
+        }, () => {
+            const el = document.getElementById('sensor-location');
+            if (el) el.innerText = 'DENIED';
+        });
+    }
+
+    // 📡 NETWORK INFORMATION API
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+        const updateNet = () => {
+            const el = document.getElementById('sensor-network');
+            if (el) el.innerText = `${conn.effectiveType || '??'} ${conn.downlink ? conn.downlink + 'Mb' : ''}`;
+        };
+        updateNet();
+        conn.addEventListener('change', updateNet);
+    }
+
+    // 🧠 DEVICE MEMORY API
+    if (navigator.deviceMemory) {
+        const el = document.getElementById('sensor-memory');
+        if (el) el.innerText = `${navigator.deviceMemory}GB RAM`;
+    }
+
+    // 🕓 TIME-AWARE AUTO-MOOD
+    const hour = new Date().getHours();
+    let timeMood = 'electronic';
+    let timeLabel = '';
+    if (hour >= 0 && hour < 6) {
+        timeMood = 'techno'; timeLabel = 'NIGHT OWL';
+    } else if (hour >= 6 && hour < 10) {
+        timeMood = 'ambient'; timeLabel = 'SUNRISE';
+    } else if (hour >= 10 && hour < 14) {
+        timeMood = 'electronic'; timeLabel = 'MIDDAY';
+    } else if (hour >= 14 && hour < 18) {
+        timeMood = 'experimental'; timeLabel = 'AFTERNOON';
+    } else if (hour >= 18 && hour < 22) {
+        timeMood = 'electronic'; timeLabel = 'GOLDEN HOUR';
+    } else {
+        timeMood = 'techno'; timeLabel = 'LATE NIGHT';
+    }
+    const tmEl = document.getElementById('sensor-time-mood');
+    if (tmEl) tmEl.innerText = timeLabel;
+
+    // Auto-set mood based on time if user hasn't manually chosen
+    if (!localStorage.getItem('moskv_dj_mood')) {
+        this.currentMood = timeMood;
+        this.agentUI?.querySelectorAll('.dj-mood-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.mood === timeMood);
+        });
+    }
+
+    // 📱 DEVICE ORIENTATION (Waveform tilt effect on mobile)
+    if ('DeviceOrientationEvent' in window) {
+        window.addEventListener('deviceorientation', (e) => {
+            if (e.gamma !== null && this.waveformBars) {
+                const tilt = Math.abs(e.gamma) / 90; // 0-1 normalized
+                this.waveformBars.forEach((bar, i) => {
+                    const offset = (i / this.waveformBars.length) * tilt * 60;
+                    bar.style.transform = `translateY(${offset}px)`;
+                });
+            }
+        });
+    }
+  }
+
+  // 📦 TIKTOK PREFETCH: Pre-select next 2 tracks
+  _prefetchNext() {
+    const pool = this._getTracksForMood();
+    this.prefetchQueue = [];
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    for (let i = 0; i < Math.min(2, shuffled.length); i++) {
+        this.prefetchQueue.push(shuffled[i]);
+    }
+    // Update UI
+    for (let i = 0; i < 2; i++) {
+        const el = document.getElementById(`dj-prefetch-${i+1}`);
+        if (el && this.prefetchQueue[i]) {
+            const title = window.DATA?.works?.find(w => w.id === this.prefetchQueue[i])?.title || this.prefetchQueue[i];
+            el.innerText = title.substring(0, 12);
+        } else if (el) {
+            el.innerText = '---';
+        }
+    }
+    // Pre-cue first prefetch on standby deck
+    const standbyDeck = this.activeDeck === 'a' ? this.deckB : this.deckA;
+    if (standbyDeck && this.prefetchQueue[0] && typeof standbyDeck.cueVideoById === 'function') {
+        standbyDeck.cueVideoById(this.prefetchQueue[0]);
+        console.log(`[MOSKV DJ] Prefetched: ${this.prefetchQueue[0]}`);
+    }
   }
 
   _animateWaveform() {
@@ -260,6 +463,57 @@ class AutoDJAesthetic {
     const rSecs = String(remaining % 60).padStart(2, '0');
     const nextEl = document.getElementById('dj-next-in');
     if (nextEl) nextEl.innerText = `${rMins}:${rSecs}`;
+  }
+
+  // 🎤 SYNTHETIC VOICE DJ (Spotify-style)
+  _djSpeak(text) {
+    if (!this.voiceEnabled) return;
+    try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 0.95;
+        utter.pitch = 0.8;
+        utter.volume = 0.7;
+        // Prefer English voice for DJ feel
+        const voices = window.speechSynthesis.getVoices();
+        const djVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Daniel')) 
+                      || voices.find(v => v.lang.startsWith('en'))
+                      || voices[0];
+        if (djVoice) utter.voice = djVoice;
+        window.speechSynthesis.speak(utter);
+    } catch(e) {
+        console.warn('[MOSKV DJ] Speech synthesis failed:', e);
+    }
+  }
+
+  // 🎵 MOOD FILTER — Get tracks matching current mood
+  _getTracksForMood() {
+    if (!window.DATA?.works) return window.DATA?.videoThumbnails || [];
+    
+    let pool = window.DATA.works;
+    if (this.currentMood !== 'all') {
+        pool = pool.filter(w => w.categories && w.categories.includes(this.currentMood));
+    }
+    // Filter out recently played (avoid repeats)
+    const ids = pool.map(w => w.id).filter(id => !this.playedTracks.includes(id));
+    
+    // If all played, reset history
+    if (ids.length === 0) {
+        this.playedTracks = [];
+        localStorage.setItem('moskv_dj_history', '[]');
+        return pool.map(w => w.id);
+    }
+    return ids;
+  }
+
+  // 📊 Record played track
+  _recordTrack(trackId) {
+    if (!this.playedTracks.includes(trackId)) {
+        this.playedTracks.push(trackId);
+        // Keep last 20 max
+        if (this.playedTracks.length > 20) this.playedTracks.shift();
+        localStorage.setItem('moskv_dj_history', JSON.stringify(this.playedTracks));
+    }
   }
 
   scheduleNextMix() {
@@ -298,7 +552,19 @@ class AutoDJAesthetic {
     const toEl = document.getElementById(`bg-video-${toDeckId}`);
 
     const availableTracks = window.DATA.videoThumbnails;
-    const nextTrack = forcedNextTrack || availableTracks[Math.floor(Math.random() * availableTracks.length)];
+    const moodPool = this._getTracksForMood();
+    // Use prefetch queue if available (TikTok-style)
+    let nextTrack;
+    if (forcedNextTrack) {
+        nextTrack = forcedNextTrack;
+    } else if (this.prefetchQueue.length > 0) {
+        nextTrack = this.prefetchQueue.shift();
+    } else {
+        nextTrack = moodPool[Math.floor(Math.random() * moodPool.length)] || availableTracks[Math.floor(Math.random() * availableTracks.length)];
+    }
+    this._recordTrack(nextTrack);
+    // Immediately refill prefetch queue for NEXT transition
+    this._prefetchNext();
     
     const nextBPM = this.getTrackBPM(nextTrack);
     console.log(`[CORTEX Auto-DJ] Syncing BPM: Master(${this.masterBPM}) <- Target(${nextBPM})`);
@@ -334,6 +600,10 @@ class AutoDJAesthetic {
                  onComplete: () => gsap.set('.video-container', { x: 0 })
              });
         }
+        
+        // 🎤 DJ Voice Announcement
+        const moodLabel = this.currentMood === 'all' ? '' : ` ${this.currentMood} vibes.`;
+        this._djSpeak(`Incoming. ${trackTitle}. ${nextBPM} B P M.${moodLabel} Syncing now.`);
     }
 
     toPlayer.mute();
