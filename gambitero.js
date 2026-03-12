@@ -151,7 +151,8 @@ class ElGambitero {
         text: "Bilbao oscurece bajo un sirimiri frío y asqueroso. De repente sientes la boca seca como el cartón. Rasgas un sobre vintage de <strong>TANGA LIMÓN</strong> y te comes el polvo efervescente directamente. Te quema la lengua, pero te revive.",
         choices: [
           { text: "🛤️ Caminar por las vías oscuras (Atajo)", next: 22, score: 15, item: null },
-          { text: "🚗 Intentar hacer autostop a la desesperada", next: 10, score: -5, item: null }
+          { text: "🚗 Intentar hacer autostop a la desesperada", next: 10, score: -5, item: null },
+          { text: "🌀 Entrar al Callejón de las Ilusiones (SCROLL)", next: 25, score: 20, item: null }
         ]
       },
       {
@@ -330,6 +331,34 @@ class ElGambitero {
         choices: [
           { text: "🥶 Caer debilitado y desanimado... huir llorando (FINAL 2: FRACASO)", next: 19, score: -25, item: "Sin_Buen_Humor" },
           { text: "💥 Lanzarle Tanga de Limón a los ojos para cegarlo", next: 6, score: 50, item: null }
+        ]
+      },
+      // === SCROLL LATERAL (SCENE 25) ===
+      {
+        id: 25, title: "EL CALLEJÓN DE LAS ILUSIONES",
+        art: `<div class="gamb-horizontal-scroll">
+          <div class="gamb-scroll-item">
+            <img src="img/nano_despertar.png" alt="Ilusion 1">
+            <p>EL PASADO<br><span>La Cama</span></p>
+          </div>
+          <div class="gamb-scroll-item">
+            <img src="img/nano_portugueses.png" alt="Ilusion 2">
+            <p>EL SUFRIMIENTO<br><span>Casco Viejo</span></p>
+          </div>
+          <div class="gamb-scroll-item">
+            <img src="img/nano_pulco_limon.png" alt="Ilusion 3">
+            <p>LA SED<br><span>Ácido Puro</span></p>
+          </div>
+          <div class="gamb-scroll-item winner-scroll">
+            <img src="img/nano_alonsotegi_monte.png" alt="Ilusion 4">
+            <p>LA VERDAD<br><span>Alonsotegi ➔</span></p>
+          </div>
+        </div>`,
+        text: "La fatiga te hace alucinar. Te encuentras en un pasillo distorsionado donde el espacio se pliega. Tienes que hacer <strong>SCROLL LATERAL</strong> por los ecos de tu mente para encontrar el verdadero camino, o te quedarás atrapado aquí para siempre.",
+        choices: [
+          { text: "🚪 Entrar al Eco del Pasado", next: 0, score: -20, item: null },
+          { text: "🚪 Entrar por la Puerta de la Verdad", next: 11, score: 40, item: "Claridad_Mental" },
+          { text: "🎰 Bajar al Casino Subconsciente", next: 20, score: 0, item: null }
         ]
       }
     ];
