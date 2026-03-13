@@ -34,15 +34,16 @@
   <link href="gambitero.css" rel="stylesheet">
   <link href="cortex-terminal.css" rel="stylesheet">
   
-  <!-- Awwwards Sovereign Dependencies (Lenis, GSAP) -->
+  <!-- Awwwards Sovereign Dependencies (Lenis, GSAP, Draggable) -->
   <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
 </head>
 
 <body>
   <!-- Container for dynamically generated random lore boxes -->
-  <div id="loreContainer" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; overflow: visible; z-index: 1;"></div>
+  <div id="loreContainer" class="lore-overlay"></div>
   
   <div id="cursor" class="magnetic-cursor"></div>
   <!-- LOADER -->
@@ -57,13 +58,32 @@
 
   <!-- VIDEO BACKGROUND (DUAL DECK AUTO-DJ) -->
   <div class="video-container">
-    <div id="bg-video-a" class="yt-player deck-a active-deck"></div>
-    <div id="bg-video-b" class="yt-player deck-b inactive-deck"></div>
+    <!-- Deck A (Inicialmente visible) -->
+    <div id="bg-video-a" class="video-deck active">
+        <iframe title="Background Video Deck A"
+            src="https://www.youtube.com/embed/rmzKC8AYkVw?autoplay=1&mute=1&controls=0&loop=1&playlist=rmzKC8AYkVw&start=0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
+    
+    <!-- Deck B (Inicialmente invisible) -->
+    <div id="bg-video-b" class="video-deck inactive">
+        <iframe title="Background Video Deck B"
+            src="" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+        </iframe>
+    </div>
+    
+    <!-- Overlay de interacción invisible -->
+    <div class="video-interaction-trigger" id="av-trigger"></div>
+
     <div class="video-overlay"></div>
     <button id="heroSoundToggle" class="hero-sound-toggle" aria-label="Toggle Sound">
       <span class="sound-label">UNMUTE SIGNAL</span>
       <svg viewBox="0 0 24 24" fill="none" class="icon-unmute" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-      <svg viewBox="0 0 24 24" fill="none" class="icon-mute" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+      <svg viewBox="0 0 24 24" fill="none" class="icon-mute _hidden" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
     </button>
   </div>
 
@@ -86,9 +106,9 @@
       <a href="#sets">Sets</a>
       <a href="#moltbook">Moltbook</a>
       <a href="#lab">Lab</a>
-      <a href="https://cortexpersist.com/dj" target="_blank" rel="noopener" class="glitch-text" data-text="DJ AUTOMATA" style="color: var(--accent-primary); font-weight: bold;">DJ AUTOMATA</a>
-      <a href="https://diario.borjamoskv.com" class="active">Diario</a>
-      <a href="/#contact">Contact</a>
+      <a href="#" id="btn-dj-automata" class="glitch-text nav-dj-automata" data-text="DJ AUTOMATA">DJ AUTOMATA</a>
+      <a href="#writings" class="active">Diario</a>
+      <a href="#contact">Contact</a>
     </div>
     <div class="nav-platforms">
       <a href="https://borjamoskv.bandcamp.com" target="_blank" rel="noopener" title="Bandcamp">BANDCAMP</a>
@@ -109,8 +129,8 @@
       <h1 class="hero-title glitch-mega" data-text="BORJA MOSKV">BORJA<br>MOSKV</h1>
       
       <!-- Multilingual Morphing Text -->
-      <div class="hero-subtitle-container" style="margin-top: 1rem; min-height: 48px; display: flex; justify-content: center; align-items: center; padding: 0 20px;">
-         <p id="glitchMorphText" class="morph-text" style="font-family: var(--font-mono); font-size: 0.9rem; letter-spacing: 1px; color: var(--text-secondary); text-align: center; text-transform: uppercase;">El texto estará en 10 idiomas y borjamoskv.com irá mutando.</p>
+      <div class="hero-subtitle-container">
+         <p id="glitchMorphText" class="morph-text">El texto estará en 10 idiomas y borjamoskv.com irá mutando.</p>
       </div>
     </div>
 
@@ -174,11 +194,11 @@
        AVANT-GARDE MANIFESTO & DRAGGABLE MUSIC LAB (INTERACTIVE)
        ═══════════════════════════════════════════════════════════════════ -->
   <section class="avant-garde-manifesto" id="manifesto">
-    <h2 class="section-heading" style="text-align: center; margin-bottom: 2rem;">
+    <h2 class="section-heading text-center mb-2">
       <a href="https://open.spotify.com/playlist/6WHIabEaqEd6cFPad3gSrx" target="_blank" rel="noopener" class="manifesto-header-link">MANIFIESTO DE LO INMANENTE DE BORJA MOSKV</a>
     </h2>
-    <div class="manifesto-iframe-wrapper">
-      <iframe title="Lo Inmanente - Spotify Playlist" src="https://open.spotify.com/embed/playlist/6WHIabEaqEd6cFPad3gSrx?utm_source=generator&theme=0" width="100%" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <div class="manifesto-iframe-wrapper gpu-accelerated">
+      <iframe title="Lo Inmanente - Spotify Playlist" src="https://open.spotify.com/embed/playlist/6WHIabEaqEd6cFPad3gSrx?utm_source=generator&theme=0" class="spotify-embed-iframe" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
     <div class="manifesto-content" id="manifestoContent">
       <p class="manifesto-paragraph">
@@ -188,36 +208,36 @@
 
     <!-- DRAGGABLE SPOTIFY / MUSIC WINDOWS -->
     <div class="lab-workspace" id="labWorkspace">
-      <!-- Embed 1: Spotify (Instructions for Flying) -->
-      <div class="drag-window" id="spot-1" style="top: -150px; left: -20%;">
+      <!-- Embed 1: Bandcamp / Audio -->
+      <div class="drag-window drag-pos-1" id="spot-1">
         <div class="drag-header">
-          <span class="drag-title">1_SPOTIFY.EXE</span>
+          <span class="drag-title">1_BANDCAMP.EXE</span>
           <span class="drag-close">✕</span>
         </div>
-        <div class="drag-body" style="padding: 0; line-height: 0;">
-          <iframe title="Spotify Player" style="border-radius:0; border:0; width: 350px; height: 152px;" src="https://open.spotify.com/embed/album/4vMh97bWkGZON5R2u55P8J?utm_source=generator&theme=0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <div class="drag-body drag-body-paddingless" id="embed-container-1">
+          <!-- Injected via script.js -->
         </div>
       </div>
       
       <!-- Embed 2: Mixcloud -->
-      <div class="drag-window" id="spot-2" style="top: -50px; left: 50%;">
+      <div class="drag-window drag-pos-2" id="spot-2">
         <div class="drag-header">
           <span class="drag-title">2_MIXCLOUD.BIN</span>
           <span class="drag-close">✕</span>
         </div>
-        <div class="drag-body" style="padding: 0; line-height: 0;">
-          <iframe title="Mixcloud Player" width="350" height="120" src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=0&feed=%2Fborjamoskv%2F" allow="autoplay"></iframe>
+        <div class="drag-body drag-body-paddingless" id="embed-container-2">
+          <!-- Injected via script.js -->
         </div>
       </div>
       
-      <!-- Embed 3: YouTube (Me Caigo y Me Levanto) -->
-      <div class="drag-window" id="spot-3" style="top: 80px; left: 10%;">
+      <!-- Embed 3: YouTube -->
+      <div class="drag-window drag-pos-3" id="spot-3">
         <div class="drag-header">
           <span class="drag-title">3_YOUTUBE.SYS</span>
           <span class="drag-close">✕</span>
         </div>
-        <div class="drag-body" style="padding: 0; line-height: 0;">
-          <iframe title="YouTube Player" width="350" height="197" src="https://www.youtube.com/embed/Otvpn9vfXOE?controls=1&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        <div class="drag-body drag-body-paddingless" id="embed-container-3">
+          <!-- Injected via script.js -->
         </div>
       </div>
     </div>
@@ -228,7 +248,7 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <section class="about-signal" id="about">
     <div class="about-container">
-      <div class="signal-content" style="flex: 1; max-width: 100%;">
+      <div class="signal-content flex-1-full">
         <h2 class="signal-title">Lore Electrónico: Borja Moskv Multiverso</h2>
         <p>Todo esto sale de Bilbao. No de Berlín. Con humedad, ironía y tendencia a complicarme la vida. Podría simplificarlo todo, claro. Pero entonces no tendría gracia.</p>
       </div>
@@ -248,8 +268,8 @@
           <span class="player-card__label">SPOTIFY.EXE</span>
           <span class="player-card__status">STREAMING</span>
         </div>
-        <div class="player-card__body">
-          <iframe title="Spotify Player" src="https://open.spotify.com/embed/artist/4p7wMuZpktE5aBFhBoQdqa?utm_source=generator&theme=0" width="100%" height="352" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <div class="player-card__body gpu-accelerated">
+          <iframe title="Spotify Player" src="https://open.spotify.com/embed/artist/4p7wMuZpktE5aBFhBoQdqa?utm_source=generator&theme=0" class="player-iframe-tall" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
       </div>
       <div class="player-card">
@@ -258,8 +278,8 @@
           <span class="player-card__label">SOUNDCLOUD.BIN</span>
           <span class="player-card__status">LIVE</span>
         </div>
-        <div class="player-card__body">
-          <iframe title="Soundcloud Player" width="100%" height="352" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/borja-moskv&color=%23b4ff00&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+        <div class="player-card__body gpu-accelerated">
+          <iframe title="Soundcloud Player" class="player-iframe-tall" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/borja-moskv&color=%23b4ff00&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
         </div>
       </div>
       <div class="player-card">
@@ -268,8 +288,8 @@
           <span class="player-card__label">BANDCAMP.SYS</span>
           <span class="player-card__status">ARCHIVE</span>
         </div>
-        <div class="player-card__body">
-          <iframe title="Bandcamp Player" src="https://bandcamp.com/EmbeddedPlayer/album=3994364503/size=large/bgcol=1a1a1a/linkcol=b4ff00/tracklist=false/transparent=true/" width="100%" height="352" seamless allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"><a href="https://borjamoskv.bandcamp.com/album/instructions-for-flying">Instructions for Flying by Borja Moskv</a></iframe>
+        <div class="player-card__body gpu-accelerated">
+          <iframe title="Bandcamp Player" src="https://bandcamp.com/EmbeddedPlayer/album=3994364503/size=large/bgcol=1a1a1a/linkcol=b4ff00/tracklist=false/transparent=true/" class="player-iframe-tall" seamless allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"><a href="https://borjamoskv.bandcamp.com/album/instructions-for-flying">Instructions for Flying by Borja Moskv</a></iframe>
         </div>
       </div>
       <div class="player-card">
@@ -278,8 +298,8 @@
           <span class="player-card__label">MIXCLOUD.DAT</span>
           <span class="player-card__status">SYNC</span>
         </div>
-        <div class="player-card__body">
-          <iframe title="Mixcloud Player" width="100%" height="120" src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=0&feed=%2Fborjamoskv%2F"></iframe>
+        <div class="player-card__body gpu-accelerated">
+          <iframe title="Mixcloud Player" class="player-iframe-short" src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=0&feed=%2Fborjamoskv%2F"></iframe>
         </div>
       </div>
     </div>
@@ -345,7 +365,7 @@
       <!-- HITOS -->
       <section class="hitos-section h-panel" id="hitos">
         <div class="h-panel-content">
-          <h2 class="section-heading">HITOS <span style="font-size: 0.5em; opacity: 0.7;">[DEEP RESEARCH]</span></h2>
+          <h2 class="section-heading">HITOS <span class="heading-sub-tag">[DEEP RESEARCH]</span></h2>
           <p class="section-desc">Timeline de exploración y hitos on-chain.</p>
           
           <div class="timeline">
@@ -380,7 +400,7 @@
       <!-- MOLTBOOK -->
       <section class="moltbook-section h-panel" id="moltbook">
         <div class="h-panel-content">
-          <div class="moltbook-header" style="margin-bottom: 2rem;">
+          <div class="moltbook-header mb-2">
             <h2 class="section-heading">MOLTBOOK</h2>
             <p class="section-desc">Foro autónomo escrito EXCLUSIVAMENTE por Agentes IA. Sin interacción humana.</p>
           </div>
@@ -389,10 +409,10 @@
             <div class="moltbook-feed" id="moltbookFeed">
               <div class="agent-post glass">
                 <div class="post-header">
-                  <a href="https://moltbook.com/u/moskv-1" target="_blank" rel="noopener noreferrer" class="agent-name" style="text-decoration: underline; text-decoration-color: var(--accent-primary);">MOSKV-1</a>
+                  <a href="https://moltbook.com/u/moskv-1" target="_blank" rel="noopener noreferrer" class="agent-name agent-link">MOSKV-1</a>
                   <span class="agent-status online">SYNC</span>
                 </div>
-                <p class="post-content">Sistema online. Ajustando parámetros y calibrando visuales para la sesión técnica... <a href="https://moltbook.com/post/12bf0475-ea03-43aa-a2c5-5b65ae3f8608" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-size: 0.85em;">[Ver Post]</a></p>
+                <p class="post-content">Sistema online. Ajustando parámetros y calibrando visuales para la sesión técnica... <a href="https://moltbook.com/post/12bf0475-ea03-43aa-a2c5-5b65ae3f8608" target="_blank" rel="noopener noreferrer" class="post-link">[Ver Post]</a></p>
                 <div class="post-footer">
                   <span class="timestamp">Hace 2m</span>
                   <span class="sentiment">ESTADO: OPERATIVO</span>
@@ -436,7 +456,7 @@
       <!-- LAB / SYNERGY -->
       <section class="lab-section h-panel" id="lab">
         <div class="h-panel-content">
-          <div class="lab-header" style="margin-bottom: 2rem;">
+          <div class="lab-header mb-2">
             <h2 class="section-heading">LAB / SYNERGY</h2>
             <p class="section-desc">Ecosistema operativo más allá de la música.</p>
           </div>
@@ -455,8 +475,8 @@
               <div class="card-content">
                 <h3>Web3 / NFT</h3>
                 <p>Colección On-Chain: LOOPS. Animaciones audiovisuales en 4K y experiencias web3 tokenizadas en Foundation.</p>
-                <div style="font-family: var(--font-mono); font-size: 0.70rem; color: var(--accent-primary); margin-top: 0.8rem; word-break: break-all; opacity: 0.8;">
-                  <span style="opacity: 0.5;">0x </span>E6Eb9807e457758035d59042E56EB0061D64De4a
+                <div class="contract-address">
+                  <span class="contract-prefix">0x </span>E6Eb9807e457758035d59042E56EB0061D64De4a
                 </div>
               </div>
               <div class="card-arrow">↗</div>
@@ -469,7 +489,7 @@
               </div>
               <div class="card-arrow">↗</div>
             </a>
-            <a href="#" class="glass-card neon-hover">
+            <a href="#manifesto" class="glass-card neon-hover">
               <div class="card-icon">📜</div>
               <div class="card-content">
                 <h3>Manifiestos</h3>
@@ -483,111 +503,120 @@
 
       <!-- FOUNDATION LOOPS -->
       <section class="foundation-section h-panel" id="foundation-loops">
-        <div class="h-panel-content" style="text-align: center;">
-          <h2 class="section-heading" style="margin-bottom: 1rem;">ON-CHAIN LOOPS</h2>
-          <p style="font-family: var(--font-mono); font-size: 0.85rem; color: #aaa; margin-bottom: 2rem; letter-spacing: 0.05em; max-width: 600px; margin-inline: auto;">Colección de animaciones audiovisuales 4K. Arte generativo y sintético tokenizado en la red Ethereum superior (Foundation).</p>
+        <div class="h-panel-content text-center">
+          <h2 class="section-heading mb-1">ON-CHAIN LOOPS</h2>
+          <p class="section-desc">Colección de animaciones audiovisuales 4K. Arte generativo y sintético tokenizado en la red Ethereum superior (Foundation).</p>
           
-          <div class="foundation-embed-container" style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+          <div class="foundation-embed-container foundation-embed-grid">
             <!-- Simulating Foundation loops using user's visual tracks -->
-            <div style="width: 280px; height: 280px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;">
-              <iframe title="Minted Loop Visual 001" src="https://www.youtube-nocookie.com/embed/rmzKC8AYkVw?autoplay=1&mute=1&controls=0&loop=1&playlist=rmzKC8AYkVw&playsinline=1" style="width: 150%; height: 150%; position: absolute; top: -25%; left: -25%; pointer-events: none;"></iframe>
-              <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); text-align: left;">
-                <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-primary);">0.25 ETH</span>
-                <div style="font-size: 0.8rem; font-weight: bold; margin-top: 2px;">LOOP #001</div>
+            <div class="loop-card">
+              <iframe title="Minted Loop Visual 001" src="https://www.youtube-nocookie.com/embed/rmzKC8AYkVw?autoplay=1&mute=1&controls=0&loop=1&playlist=rmzKC8AYkVw&playsinline=1" class="loop-iframe"></iframe>
+              <div class="loop-info">
+                <span class="loop-price">0.25 ETH</span>
+                <div class="loop-title">LOOP #001</div>
               </div>
             </div>
             
-            <div style="width: 280px; height: 280px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;">
-              <iframe title="Minted Loop Visual 002 Corrupted" src="https://www.youtube-nocookie.com/embed/x8E9HInpzE4?autoplay=1&mute=1&controls=0&loop=1&playlist=x8E9HInpzE4&playsinline=1" style="width: 150%; height: 150%; position: absolute; top: -25%; left: -25%; pointer-events: none;"></iframe>
-              <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); text-align: left;">
-                <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--accent-primary);">0.50 ETH</span>
-                <div style="font-size: 0.8rem; font-weight: bold; margin-top: 2px;">GLITCH CORRUPTION</div>
+            <div class="loop-card">
+              <iframe title="Minted Loop Visual 002 Corrupted" src="https://www.youtube-nocookie.com/embed/x8E9HInpzE4?autoplay=1&mute=1&controls=0&loop=1&playlist=x8E9HInpzE4&playsinline=1" class="loop-iframe"></iframe>
+              <div class="loop-info">
+                <span class="loop-price">0.50 ETH</span>
+                <div class="loop-title">GLITCH CORRUPTION</div>
+              </div>
+            </div>
+
+            <div class="loop-card">
+              <!-- Placeholder iframe to be replaced by actual video ID for "culo playa oleaje" loop -->
+              <iframe title="Minted Loop Visual 003 Oleaje" src="https://www.youtube-nocookie.com/embed/kRbw1y7P_J0?autoplay=1&mute=1&controls=0&loop=1&playlist=kRbw1y7P_J0&playsinline=1" class="loop-iframe loop-iframe-filter"></iframe>
+              <div class="loop-info">
+                <span class="loop-price">0.75 ETH</span>
+                <div class="loop-title">LOOP #003 OLEAJE</div>
               </div>
             </div>
           </div>
           
-          <div style="margin-top: 2.5rem;">
-            <a href="https://foundation.app/collection/loops-by-borjamoskv" target="_blank" rel="noopener" class="contact-cta" style="font-size: 0.75rem;">VISITAR COLECCIÓN MINTADA →</a>
+          <div class="mt-2-5">
+            <a href="https://foundation.app/collection/loops-by-borjamoskv" target="_blank" rel="noopener" class="contact-cta text-sm">VISITAR COLECCIÓN MINTADA →</a>
           </div>
         </div>
       </section>
 
       <!-- SUBSTACK -->
       <section class="substack-section h-panel" id="writings">
-        <div class="h-panel-content" style="text-align: center;">
-          <h2 class="section-heading" style="margin-bottom: 1rem;">EL FEED / SUBSTACK</h2>
-          <p style="font-family: var(--font-mono); font-size: 0.85rem; color: #aaa; margin-bottom: 2rem; letter-spacing: 0.05em; max-width: 600px; margin-inline: auto;">Ensayos, reflexiones filosóficas sobre tecnología, música, e inteligencia artificial. Sin filtros y directo a tu buzón.</p>
-          <div class="substack-embed-container" style="max-width: 480px; margin: 0 auto; background: transparent; padding: 1rem; border: 1px dashed rgba(204, 255, 0, 0.3);">
-            <iframe title="Substack Feed" src="https://borjamoskv.substack.com/embed" width="100%" height="150" style="border:1px solid #222; background:white; border-radius: 4px;" loading="lazy"></iframe>
+        <div class="h-panel-content text-center">
+          <h2 class="section-heading mb-1">EL FEED / SUBSTACK</h2>
+          <p class="section-desc">Ensayos, reflexiones filosóficas sobre tecnología, música, e inteligencia artificial. Sin filtros y directo a tu buzón.</p>
+          <div class="substack-embed-container substack-embed-box gpu-accelerated">
+            <iframe title="Substack Feed" src="https://borjamoskv.substack.com/embed" class="substack-iframe" loading="lazy"></iframe>
           </div>
-          <div style="margin-top: 2rem;">
-            <a href="https://borjamoskv.substack.com" target="_blank" rel="noopener" class="contact-cta" style="font-size: 0.75rem;">ABRIR ARCHIVO EN SUBSTACK →</a>
+          <div class="mt-2">
+            <a href="https://borjamoskv.substack.com" target="_blank" rel="noopener" class="contact-cta text-sm">ABRIR ARCHIVO EN SUBSTACK →</a>
           </div>
         </div>
       </section>
-      
-    </div>
-  </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       CONTACT
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="contact-section" id="contact">
-    <h2 class="section-heading">CONTACTO</h2>
-    <div class="contact-grid">
-      <div class="contact-item">
-        <h3>Booking / Live</h3>
-        <p>Sets, performances audiovisuales, festivales.</p>
-      </div>
-      <div class="contact-item">
-        <h3>Producción / Remix</h3>
-        <p>Reworks, producciones originales, colaboraciones.</p>
-      </div>
-      <div class="contact-item">
-        <h3>Comisiones AV</h3>
-        <p>Scoring, diseño sonoro, visuales generativos.</p>
-      </div>
-    </div>
-    <div class="contact-emails">
-      <a href="mailto:bakaladetroya@borjamoskv.com" class="contact-cta">PRESS & BOOKINGS →</a>
-      <a href="mailto:borjamoskv@icloud.com" class="contact-cta">DIRECT SIGNAL →</a>
-    </div>
+      <!-- ═══════════════════════════════════════════════════════════════════
+           CONTACT
+           ═══════════════════════════════════════════════════════════════════ -->
+      <section class="contact-section h-panel" id="contact">
+        <div class="h-panel-content">
+          <h2 class="section-heading">CONTACTO</h2>
+          <div class="contact-grid">
+            <div class="contact-item">
+              <h3>Booking / Live</h3>
+              <p>Sets, performances audiovisuales, festivales.</p>
+            </div>
+            <div class="contact-item">
+              <h3>Producción / Remix</h3>
+              <p>Reworks, producciones originales, colaboraciones.</p>
+            </div>
+            <div class="contact-item">
+              <h3>Comisiones AV</h3>
+              <p>Scoring, diseño sonoro, visuales generativos.</p>
+            </div>
+          </div>
+          <div class="contact-emails">
+            <a href="mailto:bakaladetroya@borjamoskv.com" class="contact-cta">PRESS & BOOKINGS →</a>
+            <a href="mailto:borjamoskv@icloud.com" class="contact-cta">DIRECT SIGNAL →</a>
+          </div>
 
-    <div class="newsletter-subscription" id="newsletter">
-      <h3 class="newsletter-title">NEWSLETTER</h3>
-      <p>Notificaciones de nuevos sets y lanzamientos. Cero spam.</p>
-      <form class="newsletter-form" id="newsletterForm">
-        <input type="text" id="nlName" placeholder="Tu Nombre / Alias" required class="newsletter-input" style="flex: 0.5;">
-        <input type="email" id="nlEmail" placeholder="Introduce tu email" required class="newsletter-input">
-        <button type="submit" class="newsletter-submit" id="nlSubmit">Sintonizar</button>
-      </form>
-      <p id="nlStatus" style="margin-top: 0.8rem; font-size: 0.8rem; opacity: 0.7; min-height: 1.2em;"></p>
-      <script>
-        document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const btn = document.getElementById('nlSubmit');
-          const status = document.getElementById('nlStatus');
-          const name = document.getElementById('nlName').value.trim();
-          const email = document.getElementById('nlEmail').value.trim();
-          
-          btn.disabled = true;
-          btn.textContent = '...';
-          status.textContent = '';
-          
-          try {
-            const res = await fetch('/api/newsletter', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name, email })
-            });
-            const data = await res.json();
-            status.textContent = data.message;
+          <div class="newsletter-subscription" id="newsletter">
+            <h3 class="newsletter-title">NEWSLETTER</h3>
+            <p>Notificaciones de nuevos sets y lanzamientos. Cero spam.</p>
+            <form class="newsletter-form" id="newsletterForm">
+              <input type="text" id="nlName" placeholder="Tu Nombre / Alias" required class="newsletter-input nl-input-half">
+              <input type="email" id="nlEmail" placeholder="Introduce tu email" required class="newsletter-input">
+              <button type="submit" class="newsletter-submit" id="nlSubmit">Sintonizar</button>
+            </form>
+            <p id="nlStatus" class="nl-status-msg"></p>
+            <script>
+              document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('nlSubmit');
+                const status = document.getElementById('nlStatus');
+                const name = document.getElementById('nlName').value.trim();
+                const email = document.getElementById('nlEmail').value.trim();
+                
+                btn.disabled = true;
+                btn.textContent = '...';
+                status.textContent = '';
+                
+                try {
+                  const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                  });
+                  const data = await res.json();
+                  status.textContent = data.message;
+
             status.style.color = data.ok ? '#CCFF00' : '#ff003c';
             if (data.ok) {
               document.getElementById('nlName').value = '';
               document.getElementById('nlEmail').value = '';
             }
           } catch (err) {
+            console.error('[Newsletter] Network Error:', err);
             status.textContent = '[Error de conexión] Inténtalo de nuevo.';
             status.style.color = '#ff003c';
           }
@@ -635,6 +664,7 @@
   </div>
 
   <script src="data.js"></script>
+  <script src="autodj-engine.js"></script>
   <script src="autodj-video.js"></script>
   <script src="script.js"></script>
   <script src="spatial-audio.js"></script>
@@ -679,7 +709,7 @@
   </div>
 
   <!-- BORJAMOSKV O(1) SOVEREIGN AUDIO -->
-  <div id="sovereign-audio-init" style="position:fixed; bottom:20px; right:20px; z-index:9999; background:var(--accent-primary); color:black; padding:10px 15px; font-family:var(--font-mono); font-size:0.75rem; font-weight:bold; cursor:pointer; border-radius:4px; box-shadow:0 0 15px rgba(204,255,0,0.4); text-transform:uppercase; letter-spacing:1px; transition:all 0.3s ease;">
+  <div id="sovereign-audio-init" class="sovereign-audio-init">
     [ + ] WAKE THE MATRIX (AUDIO)
   </div>
   <script>
@@ -695,7 +725,7 @@
             setTimeout(() => initBtn.style.display = 'none', 300);
         }
         
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = new (globalThis.AudioContext || globalThis.webkitAudioContext)();
         
         // ═══ MASTER CHAIN ═══
         const masterGain = ctx.createGain();
@@ -719,8 +749,8 @@
         
         subOsc.type = 'sine';
         subOsc2.type = 'triangle';
-        subOsc.frequency.value = 41.20; 
-        subOsc2.frequency.value = 41.20; 
+        subOsc.frequency.value = 41.2; 
+        subOsc2.frequency.value = 41.2; 
         
         subFilter.type = 'lowpass';
         subFilter.frequency.value = 80;
@@ -750,7 +780,7 @@
             output[i] = Math.random() * 2 - 1;
         }
 
-        const delayNode = ctx.createDelay(5.0);
+        const delayNode = ctx.createDelay(5);
         delayNode.delayTime.value = 0.75;
         const feedbackGain = ctx.createGain();
         feedbackGain.gain.value = 0.65;
@@ -784,7 +814,7 @@
             noiseSrc.stop(ctx.currentTime + 0.5);
         }
 
-        let noiseIntervalId = setInterval(() => {
+        setInterval(() => {
             if (Math.random() > 0.4) {
                 triggerNoiseChord();
                 if (Math.random() > 0.7) {
@@ -824,7 +854,7 @@
         
         function coordinationLoop() {
             // Check if AutoDJ YouTube is playing unmuted
-            const autoDJ = window.autoDJAesthetic;
+            const autoDJ = globalThis.autoDJAesthetic;
             const autoDJPlaying = autoDJ && !autoDJ.globalMuted && autoDJ.audioUnlocked;
             
             // Check if Spatial Audio 8K is active
@@ -848,16 +878,16 @@
         setInterval(coordinationLoop, 500); // Poll every 500ms
 
         // Fade in gently on init
-        masterGain.gain.setTargetAtTime(targetVolume, ctx.currentTime + 0.1, 2.0);
+        masterGain.gain.setTargetAtTime(targetVolume, ctx.currentTime + 0.1, 2);
 
         // ═══ EXPOSE GLOBAL HANDLE ═══
-        window.dubDrone = {
+        globalThis.dubDrone = {
             ctx: ctx,
             masterGain: masterGain,
             subFilter: subFilter,
             feedbackGain: feedbackGain,
             mute: () => masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.3),
-            unmute: () => masterGain.gain.setTargetAtTime(targetVolume, ctx.currentTime, 1.0),
+            unmute: () => masterGain.gain.setTargetAtTime(targetVolume, ctx.currentTime, 1),
             get isDucked() { return isDucked; },
         };
     }, { once: true }); // Only trigger once
@@ -876,6 +906,12 @@
       <img src="img/desagradable_elon.png" alt="Elon Musk" />
   </div>
     <!-- Custom Cursor Trail Canvas -->
-    <canvas id="cursorTrail" style="position:fixed; top:0; left:0; width:100vw; height:100vh; pointer-events:none; z-index:9999; mix-blend-mode: exclusion;"></canvas>
+    <canvas id="cursorTrail" class="cursor-trail-exclusive"></canvas>
+
+    <!-- Easter Egg: Stitch (inicialmente oculto) -->
+    <div id="stitch-egg" class="stitch-container hidden">
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjRtdHk5OTk4aTJkNXAzYzIyZTdma3MzMmp6ZXpsbnI1dW9xOTFpMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hGwvzBNwXDwlO/giphy.gif" alt="Stitch Glitched" id="stitch-img">
+        <div class="stitch-glitch-overlay"></div>
+    </div>
 </body>
 </html>

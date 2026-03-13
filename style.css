@@ -155,16 +155,6 @@ body.buko-cursor-active * {
 /* ═══════════════════════════════════════════════════════════════════
    VIDEO BACKGROUND (DUAL DECK AUTO-DJ)
    ═══════════════════════════════════════════════════════════════════ */
-.video-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -10;
-  overflow: hidden;
-  background: #000;
-}
 
 .yt-player {
   position: absolute;
@@ -268,6 +258,21 @@ body.loaded .loader-overlay {
   z-index: 0; /* Moving it up from -2 to be visible */
   overflow: hidden;
   background-color: var(--bg-color);
+}
+
+.video-deck {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.video-deck.active {
+  opacity: 1;
+}
+.video-deck.inactive {
+  opacity: 0;
 }
 
 .video-container iframe {
@@ -556,7 +561,6 @@ body.loaded .loader-overlay {
   font-style: italic;
   font-size: clamp(1.618rem, 3vw, 2.618rem); /* Golden Ratio */
   color: var(--text-muted);
-  text-shadow: 0 4px 20px rgba(0,0,0,0.618);
   margin: 0;
   letter-spacing: 0.05em;
   opacity: 0; /* JS will animate this */
@@ -790,6 +794,17 @@ section:nth-child(even) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   PERFORMANCE UTILITIES (Sovereign 200)
+   ═══════════════════════════════════════════════════════════════════ */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  contain: layout paint;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    PLAYERS 
    ═══════════════════════════════════════════════════════════════════ */
 .players-grid {
@@ -857,6 +872,25 @@ section:nth-child(even) {
   width: 100%;
   border: 0;
   display: block;
+}
+
+/* Modular dimensions resolving inline-styles tech debt */
+.spotify-embed-iframe {
+  height: 352px;
+  border-radius: 12px;
+}
+
+.player-iframe-tall {
+  height: 400px;
+}
+
+.player-iframe-short {
+  height: 120px;
+}
+
+.substack-iframe {
+  height: 600px;
+  background: white;
 }
 /* ═══════════════════════════════════════════════════════════════════
    WORKS / FILTER BAR
@@ -1275,6 +1309,7 @@ section:nth-child(even) {
   padding: 1px;
   background: linear-gradient(135deg, transparent, var(--accent-primary), transparent);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
@@ -1646,12 +1681,14 @@ section:nth-child(even) {
 .avant-garde-manifesto {
   min-height: 80vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem;
   background: var(--bg-dark);
   perspective: 1000px;
   overflow: hidden;
+  position: relative;
 }
 
 .manifesto-iframe-wrapper {
@@ -1985,8 +2022,8 @@ body:has(.shock-wrapper:hover) {
 
 .spatial-binaural-controls button {
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 6px 10px;
   font-family: var(--font-mono);
   font-size: 0.65rem;
@@ -1998,9 +2035,9 @@ body:has(.shock-wrapper:hover) {
 }
 
 .spatial-binaural-controls button:hover {
-  color: #fff;
-  border-color: rgba(204, 255, 0, 0.5);
-  background: rgba(204, 255, 0, 0.1);
+  color: #000000;
+  border-color: #CCFF00;
+  background: #CCFF00;
 }
 
 .spatial-binaural-controls button.active {
@@ -2028,8 +2065,8 @@ body:has(.shock-wrapper:hover) {
     position: fixed;
     bottom: 25px;
     left: 20px;
-    background: #ff0000;
-    color: #fff;
+    background: #CC0000;
+    color: #FFFFFF;
     font-weight: 900;
     font-size: 1.1rem;
     padding: 8px 16px;
@@ -2172,6 +2209,53 @@ body:has(.shock-wrapper:hover) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   ARTISTIC INSULT MODAL (ANTI-SPAM)
+   ═══════════════════════════════════════════════════════════════════ */
+.artistic-insult-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.9);
+  z-index: 999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.3s;
+  backdrop-filter: blur(15px);
+}
+.artistic-insult-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+.artistic-insult-content {
+  text-align: center;
+  border: 1px solid var(--accent-primary);
+  padding: 4rem;
+  background: var(--bg-color);
+  max-width: 600px;
+  box-shadow: 20px 20px 0 rgba(204, 255, 0, 0.2);
+}
+.insult-text {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.insult-sub {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--accent-primary);
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
    HORIZONTAL SCROLL UNIVERSE
    ═══════════════════════════════════════════════════════════════════ */
 .h-scroll-container {
@@ -2214,6 +2298,8 @@ body:has(.shock-wrapper:hover) {
 .h-scroll-container .hitos-section,
 .h-scroll-container .moltbook-section,
 .h-scroll-container .lab-section,
+.h-scroll-container .foundation-section,
+.h-scroll-container .contact-section,
 .h-scroll-container .substack-section {
   padding: 0;
   margin: 0;
@@ -2240,6 +2326,14 @@ body:has(.shock-wrapper:hover) {
   pointer-events: none;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateY(150%);
+  opacity: 0;
+}
+
+.moskv-dj-hud.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .moskv-dj-hud::before {
@@ -2326,7 +2420,7 @@ body:has(.shock-wrapper:hover) {
 
 .moskv-dj-hud.syncing .dj-status {
   background: #FF003C;
-  color: white;
+  color: #000;
   animation: dj-warning 0.5s infinite;
 }
 
@@ -2421,7 +2515,7 @@ body:has(.shock-wrapper:hover) {
 
 .moskv-dj-hud.syncing .dj-mix-count {
   background: rgba(255, 0, 60, 0.15);
-  color: #FF003C;
+  color: #ffffff;
 }
 
 .dj-glitch-overlay {
@@ -2465,7 +2559,7 @@ body:has(.shock-wrapper:hover) {
   flex: 1;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.4);
+  color: #ffffff;
   font-family: var(--font-mono);
   font-size: 0.55rem;
   padding: 3px 0;
@@ -2572,4 +2666,198 @@ body:has(.shock-wrapper:hover) {
     -webkit-backdrop-filter: blur(8px) contrast(1.2);
     border-radius: 2px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   STITCH EASTER EGG (DRAGGABLE GLITCH)
+   ═══════════════════════════════════════════════════════════════════ */
+.stitch-egg {
+    position: fixed;
+    top: 20%;
+    left: 80%;
+    width: 150px;
+    height: 150px;
+    z-index: 99999;
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateZ(0); /* GPU Compositing */
+    will-change: transform, opacity;
+    opacity: 0; /* Hidden by default, animated in via JS */
+}
+
+.stitch-egg:active {
+    cursor: grabbing;
+}
+
+.stitch-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--accent-primary);
+    color: var(--accent-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 10px;
+    box-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+    animation: glitch-skew 4s infinite linear alternate-reverse;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INLINE STYLE REPLACEMENTS (Clean Code & SonarQube)
+   ═══════════════════════════════════════════════════════════════════ */
+.lore-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+
+.heading-sub-tag {
+  font-size: 0.5em;
+  opacity: 0.7;
+}
+
+.agent-link {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-primary);
+}
+
+.post-link {
+  color: var(--accent-primary);
+  font-size: 0.85em;
+}
+
+.contract-address {
+  font-family: var(--font-mono);
+  font-size: 0.70rem;
+  color: var(--accent-primary);
+  margin-top: 0.8rem;
+  word-break: break-all;
+  opacity: 0.8;
+}
+
+.contract-prefix {
+  opacity: 0.5;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+.mt-2 { margin-top: 2rem; }
+.mt-2-5 { margin-top: 2.5rem; }
+.text-sm { font-size: 0.75rem; }
+
+.loop-card {
+  width: 280px;
+  height: 280px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  position: relative;
+}
+
+.loop-iframe {
+  width: 150%;
+  height: 150%;
+  position: absolute;
+  top: -25%;
+  left: -25%;
+  pointer-events: none;
+}
+
+.loop-iframe-filter {
+  filter: contrast(1.2) saturate(1.1);
+}
+
+.loop-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
+  text-align: left;
+}
+
+.loop-price {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--accent-primary);
+}
+
+.loop-title {
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.substack-iframe {
+  border: 1px solid #222;
+  background: white;
+  border-radius: 4px;
+}
+
+.nl-input-half {
+  flex: 0.5;
+}
+
+.nl-status-msg {
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  min-height: 1.2em;
+}
+
+.sovereign-audio-init {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: var(--accent-primary);
+  color: black;
+  padding: 10px 15px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(204,255,0,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.flex-1-full {
+  flex: 1;
+  max-width: 100%;
+}
+
+.foundation-embed-grid {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.substack-embed-box {
+  max-width: 480px;
+  margin: 0 auto;
+  background: transparent;
+  padding: 1rem;
+  border: 1px dashed rgba(204, 255, 0, 0.3);
+}
+
 

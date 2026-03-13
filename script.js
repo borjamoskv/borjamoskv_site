@@ -124,9 +124,44 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // 2.2 RANDOMIZE MUSIC LAB EMBEDS (Sovereign Interaction)
+    const initRandomMusicLabEmbeds = () => {
+        try {
+            // BANDCAMP
+            const bcContainer = document.getElementById('embed-container-1');
+            if (bcContainer && typeof DATA !== 'undefined' && DATA.bandcampPlayers) {
+                const bcItem = DATA.bandcampPlayers[Math.floor(Math.random() * DATA.bandcampPlayers.length)];
+                bcContainer.innerHTML = `<iframe style="border-radius:0; border:0; width: 350px; height: 120px;" src="https://bandcamp.com/EmbeddedPlayer/album=${bcItem.id}/size=large/bgcol=333333/linkcol=ccff00/tracklist=false/artwork=small/transparent=true/" seamless><a href="https://${bcItem.slug}.bandcamp.com/">${bcItem.title}</a></iframe>`;
+            }
+
+            // MIXCLOUD
+            const mcContainer = document.getElementById('embed-container-2');
+            if (mcContainer) {
+                const mcSlugs = [
+                    "%2Fborjamoskv%2F",
+                    "%2Fborjamoskv%2Fteckno%2F",
+                    "%2Fborjamoskv%2Fborja-moskv-b2b-k-style-zul-2015%2F",
+                    "%2Fborjamoskv%2Fborja-moskv-classic-techno-vinyl-set%2F"
+                ];
+                const mcItem = mcSlugs[Math.floor(Math.random() * mcSlugs.length)];
+                mcContainer.innerHTML = `<iframe title="Mixcloud Player" width="350" height="120" src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=0&feed=${mcItem}" frameborder="0" allow="autoplay" allowfullscreen></iframe>`;
+            }
+
+            // YOUTUBE (Using DATA.bgVideos for random pool)
+            const ytContainer = document.getElementById('embed-container-3');
+            if (ytContainer && typeof DATA !== 'undefined' && DATA.bgVideos) {
+                const ytItem = DATA.bgVideos[Math.floor(Math.random() * DATA.bgVideos.length)];
+                ytContainer.innerHTML = `<iframe title="YouTube Player" width="350" height="197" src="https://www.youtube.com/embed/${ytItem}?controls=1&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            }
+        } catch(e) {
+            console.error("[CORTEX] Music Lab Randomizer failed:", e);
+        }
+    };
+
     initSystem();
     initWebMutator();
     initBackgroundVideo();
+    initRandomMusicLabEmbeds();
 
     // 2.5 EMPTY CLICKS TO ROTATE VIDEO
     // (Feature removed to prevent unexpected song changes on casual clicks)
@@ -270,20 +305,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Entrance Choreography
         initChoreography();
     };
-
-    // --- FLOATING COMPLETE LORE (Random Distribution) ---
-    const COMPLETE_LORE = [
-        { title: "I · AXIOMA DEL VACÍO", text: "La estática no es ruido, es memoria no resuelta." },
-        { title: "II · GRAVEDAD INVERSA", text: "Componer no es encadenar lógica, es esculpir la gravedad hasta obligar a la máquina a respirar." },
-        { title: "III · INSISTENCIA", text: "Me gustan las cosas que insisten más que las que impresionan." },
-        { title: "IV · IMPERFECCIÓN SOBERANA", text: "Busco una base sólida pero abierta a la imperfección y las desviaciones no previstas." },
-        { title: "V · BILBAO TERMINAL", text: "Producido íntegramente en Bilbao. Sin excusas, sin permisos." },
-        { title: "Ω₁ · THALAMUS MEMBRANE", text: "Toda percepción debe atravesar el filtrado de entropía antes del procesamiento denso." },
-        { title: "Ω₃ · BYZANTINE DEFAULT", text: "Confianza Cero. Toda ejecución requiere validación matemática previa." },
-        { title: "THE LAST 10% DOCTRINE", text: "Construir el 90% es simple logística. Forjar el 10% final es imponer soberanía absoluta sobre la entropía." }
-    ];
-
-
 
     const initChoreography = () => {
         // Hero title glitch
@@ -581,7 +602,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // =========================================================================
 // NO TOCAR JUMPSCARE LOGIC
 // =========================================================================
-document.addEventListener('DOMContentLoaded', () => {
     const noTocarBtn = document.getElementById('no-tocar-btn');
     const elonOverlay = document.getElementById('elon-jumpscare-overlay');
     if (noTocarBtn && elonOverlay) {
@@ -620,7 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 osc.start();
                 fmOsc.stop(ac.currentTime + 2);
                 osc.stop(ac.currentTime + 2);
-            } catch(e) { console.error('Audio failed:', e); }
+            } catch(e) { console.warn('[CORTEX] Audio generation failed:', e); }
 
             setTimeout(() => {
                 elonOverlay.style.display = 'none';
@@ -628,7 +648,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         });
     }
-});
         // Mouse Events
         document.addEventListener('mousemove', (e) => {
             mouse.x = e.clientX;
@@ -661,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } catch (e) {
-                console.log("[CORTEX] Collective Memory API not available.");
+                console.warn("[CORTEX] Collective Memory API not available.", e);
             }
 
             // Init the swarm after fetching memory
@@ -688,8 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         class Node {
             constructor(startX = null, startY = null) {
-                this.x = startX !== null ? startX : Math.random() * width;
-                this.y = startY !== null ? startY : Math.random() * height;
+                this.x = startX === null ? Math.random() * width : startX;
+                this.y = startY === null ? Math.random() * height : startY;
                 this.isMemory = startX !== null;
                 
                 // Memory nodes are slower, ambient nodes flit around
@@ -710,14 +729,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dist < config.mouseRadius * 1.5) {
                     const angle = Math.atan2(dy, dx);
                     // Heavy memory nodes get pushed less
-                    const massFriction = this.isMemory ? 0.4 : 1.0; 
+                    const massFriction = this.isMemory ? 0.4 : 1; 
                     this.vx += Math.cos(angle) * force * (1 / (dist * 0.05 + 1)) * massFriction;
                     this.vy += Math.sin(angle) * force * (1 / (dist * 0.05 + 1)) * massFriction;
                 }
             }
 
-            update() {
-                // Flocking / Mouse Attraction
+            applyMouseAttraction() {
                 if (mouse.x > 0 && mouse.y > 0) {
                     const dx = mouse.x - this.x;
                     const dy = mouse.y - this.y;
@@ -726,35 +744,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (dist < config.mouseRadius && !mouse.pressed) {
                         const force = (config.mouseRadius - dist) / config.mouseRadius;
                         const angle = Math.atan2(dy, dx);
-                        // Memory nodes are more stubborn, hard to pull
                         const pullFactor = this.isMemory ? 0.01 : 0.03;
                         this.vx += Math.cos(angle) * force * pullFactor;
                         this.vy += Math.sin(angle) * force * pullFactor;
                     }
                 }
+            }
 
-                // --- SPATIAL AUDIO REACTIVITY ---
-                // Read CSS variables generated by spatial-audio.js
-                const root = document.documentElement;
-                const rawEnergy = Number.parseFloat(root.style.getPropertyValue('--spatial-energy-raw')) || 0;
-                const rawBass = Number.parseFloat(root.style.getPropertyValue('--spatial-bass-raw')) || 0;
-                
-                // Enjambre "breathes" with the energy
-                let currentSize = this.size + (rawBass * 2.5);
-                
-                // If it's a huge bass drop, add a tiny bit of random outward velocity
+            applyPhysics(rawEnergy, rawBass) {
                 if (rawBass > 0.8 && Math.random() < 0.1) {
                     this.vx += (Math.random() - 0.5) * rawBass * 2;
                     this.vy += (Math.random() - 0.5) * rawBass * 2;
                 }
-
-                // Apply velocity with damping (friction) - memory nodes have more friction (stop faster)
-                this.x += this.vx * (1 + rawEnergy * 0.5); // Faster when there is energy
+                this.x += this.vx * (1 + rawEnergy * 0.5);
                 this.y += this.vy * (1 + rawEnergy * 0.5);
                 this.vx *= this.isMemory ? 0.94 : 0.98;
                 this.vy *= this.isMemory ? 0.94 : 0.98;
 
-                // Enforce minimum base wandering speed
                 const speed = Math.hypot(this.vx, this.vy);
                 const minSpeed = this.isMemory ? (config.baseSpeed * 0.3) : config.baseSpeed;
                 
@@ -763,14 +769,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.vx = Math.cos(angle) * minSpeed;
                     this.vy = Math.sin(angle) * minSpeed;
                 }
+            }
 
-                // Wrap smoothly
+            update() {
+                this.applyMouseAttraction();
+
+                const root = document.documentElement;
+                const rawEnergy = Number.parseFloat(root.style.getPropertyValue('--spatial-energy-raw')) || 0;
+                const rawBass = Number.parseFloat(root.style.getPropertyValue('--spatial-bass-raw')) || 0;
+                
+                let currentSize = this.size + (rawBass * 2.5);
+                
+                this.applyPhysics(rawEnergy, rawBass);
+
                 if (this.x < 0) this.x = width;
                 if (this.x > width) this.x = 0;
                 if (this.y < 0) this.y = height;
                 if (this.y > height) this.y = 0;
                 
-                // Store reactive size for rendering
                 this.reactiveSize = currentSize;
             }
 
@@ -952,7 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (typingEl) typingEl.remove();
 
                     // If API is not configured or fails, fallback to hardcoded mock
-                    if (data && data.reply) {
+                    if (data?.reply) {
                         body.innerHTML += `<div class="chat-msg bot">${data.reply}</div>`;
                     } else {
                         const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
@@ -1045,19 +1061,19 @@ document.addEventListener('DOMContentLoaded', () => {
             this.pos.x += (this.target.x - this.pos.x) * this.lerp;
             this.pos.y += (this.target.y - this.pos.y) * this.lerp;
             
-            if(typeof gsap !== 'undefined') {
-                gsap.set(this.cursor, { 
-                    x: this.pos.x - 16, // Center offset (width/2 of 32px)
-                    y: this.pos.y - 16 
-                });
-            } else {
+            if (typeof gsap === 'undefined') {
                 if (this.cursor) {
                     this.cursor.style.transform = `translate3d(${this.pos.x - 16}px, ${this.pos.y - 16}px, 0)`;
                 }
                 if (this.magneticCursor) {
                     this.magneticCursor.style.transform = `translate3d(${this.pos.x - 10}px, ${this.pos.y - 10}px, 0)`;
                 }
-            };
+            } else {
+                gsap.set(this.cursor, { 
+                    x: this.pos.x - 16, // Center offset (width/2 of 32px)
+                    y: this.pos.y - 16 
+                });
+            }
             
             requestAnimationFrame(() => this.raf());
         }
@@ -1068,22 +1084,22 @@ document.addEventListener('DOMContentLoaded', () => {
         globalThis.magneticCursor = new MagneticCursor();
     }
 
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
     // 9. DRAGGABLE WINDOWS (Music Lab)
     const initDraggableWindows = () => {
         const windows = document.querySelectorAll('.drag-window');
         
-        windows.forEach(win => {
+        const handleWindow = (win) => {
             const header = win.querySelector('.drag-header');
             const closeBtn = win.querySelector('.drag-close');
             let isDragging = false;
-            let currentX;
-            let currentY;
-            let initialX;
-            let initialY;
+            let currentX, currentY, initialX, initialY;
             let xOffset = 0;
             let yOffset = 0;
 
-            // Simple close functionality
             if(closeBtn) {
                 closeBtn.addEventListener('click', () => {
                     win.style.display = 'none';
@@ -1096,17 +1112,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener('mousemove', drag);
             }
 
-            // Bring to front on mousedown
             win.addEventListener('mousedown', () => {
                 windows.forEach(w => w.style.zIndex = 10);
                 win.style.zIndex = 20;
             });
 
             function dragStart(e) {
-                const rect = win.getBoundingClientRect();
-                const parentRect = win.parentElement.getBoundingClientRect();
-                
-                // Get offset from transform if it exists, otherwise use top/left
                 const style = globalThis.getComputedStyle(win);
                 const transform = style.getPropertyValue('transform');
                 
@@ -1147,11 +1158,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTranslate(currentX, currentY, win);
                 }
             }
+        };
 
-            function setTranslate(xPos, yPos, el) {
-                el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-            }
-        });
+        windows.forEach(handleWindow);
     };
 
     initDraggableWindows();
@@ -1180,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="drag-close">✕</span>
                 </div>
                 <div class="drag-body" style="padding: 0; line-height: 0;">
-                    <iframe title="Bandcamp Player" src="https://bandcamp.com/EmbeddedPlayer/album=${player.id}/size=large/bgcol=1a1a1a/linkcol=b4ff00/tracklist=false/transparent=true/" width="350" height="350" seamless allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                    <iframe title="Bandcamp Player" src="https://bandcamp.com/EmbeddedPlayer/track=${player.id}/size=large/bgcol=1a1a1a/linkcol=b4ff00/tracklist=false/transparent=true/" width="350" height="350" seamless allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
                 </div>
             `;
             workspace.appendChild(win);
@@ -1198,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initPuntazos = async () => {
         let markCount = 0;
         const INSULT_THRESHOLD = 15;
-        const FIBONACCI_SEQ = [5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987];
+        const FIBONACCI_SEQ = new Set([5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987]);
         
         // Insults array (Bizarre / Industrial Noir aesthetic)
         const insults = [
@@ -1254,7 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
             markCount++;
 
             // Trigger Golden Ratio (Fibonacci) Jumpscare
-            if (FIBONACCI_SEQ.includes(markCount) && jumpscareOverlay) {
+            if (FIBONACCI_SEQ.has(markCount) && jumpscareOverlay) {
                 jumpscareOverlay.classList.add('active');
                 
                 // Random glitch words
@@ -1263,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(content) {
                     const txt = glitchWords[Math.floor(Math.random() * glitchWords.length)];
                     content.textContent = txt;
-                    content.setAttribute('data-text', txt);
+                    content.dataset.text = txt;
                 }
 
                 // Alternate background based on intensity
@@ -1282,16 +1291,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Save to backend without blocking
-            try {
-                fetch('/api/marks', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ x: xPct, y: yPct })
-                });
-            } catch(err) {}
+            fetch('/api/marks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ x: xPct, y: yPct })
+            }).catch(err => console.debug("[CORTEX] Backend sync skipped.", err));
 
             // Trigger insult if they spam clicks past threshold, and it's NOT a jumpscare turn
-            if (markCount >= INSULT_THRESHOLD && !FIBONACCI_SEQ.includes(markCount) && modal) {
+            if (markCount >= INSULT_THRESHOLD && !FIBONACCI_SEQ.has(markCount) && modal) {
                 if (!modal.classList.contains('active')) {
                     const randomInsult = insults[Math.floor(Math.random() * insults.length)];
                     insultText.textContent = randomInsult;
@@ -1312,16 +1319,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!textElement) return;
 
         const languages = [
-            "borjamoskv.com evoluciona en 10 idiomas.",
-            "borjamoskv.com evolves in 10 languages.",
-            "borjamoskv.com 10 hizkuntzatan garatzen da.",
-            "borjamoskv.com évolue en 10 langues.",
-            "borjamoskv.com entwickelt sich in 10 Sprachen.",
-            "borjamoskv.com si evolve in 10 lingue.",
-            "borjamoskv.com evolui em 10 idiomas.",
-            "borjamoskv.com 10の言語で進化します。",
-            "borjamoskv.com развивается на 10 языках.",
-            "borjamoskv.com 10 taalde inkişaf edir."
+            "Castellano: Naroa.",
+            "Gallego: Naroa.",
+            "Francés: Naroa.",
+            "Inglés: Naroa.",
+            "Alemán: Naroa.",
+            "Japonés: Naroa.",
+            "Ruso: Naroa.",
+            "Esperanto: Naroa.",
+            "Sistema: ERROR de entropía detectado.",
+            "Extraterrestre: ...Stitch?"
         ];
 
         let currentIndex = 0;
@@ -1395,7 +1402,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pt.age++;
             }
             
-            ctx.lineTo(points[points.length-1].x, points[points.length-1].y);
+            ctx.lineTo(points.at(-1).x, points.at(-1).y);
             
             // Decaying brush stroke style
             ctx.strokeStyle = `rgba(204, 255, 0, 0.4)`;
@@ -1456,25 +1463,133 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof gsap === 'undefined') return;
         const glitchElements = document.querySelectorAll('.glitch-mega, .glitch-text, .nav-bizarre');
         
+        const applyGlitch = (el) => {
+            const originalColor = globalThis.getComputedStyle(el).color;
+            gsap.to(el, {
+                duration: 0.1,
+                x: () => Math.random() * 10 - 5,
+                y: () => Math.random() * 10 - 5,
+                skewX: () => Math.random() * 20 - 10,
+                color: Math.random() > 0.5 ? '#CCFF00' : '#FF2A2A',
+                yoyo: true,
+                repeat: 3,
+                onComplete: () => {
+                    gsap.to(el, { x: 0, y: 0, skewX: 0, color: originalColor, duration: 0.1, clearProps: "color" });
+                }
+            });
+        };
+
         glitchElements.forEach(el => {
-            setInterval(() => {
-                const originalColor = globalThis.getComputedStyle(el).color;
-                gsap.to(el, {
-                    duration: 0.1,
-                    x: () => Math.random() * 10 - 5,
-                    y: () => Math.random() * 10 - 5,
-                    skewX: () => Math.random() * 20 - 10,
-                    color: Math.random() > 0.5 ? '#CCFF00' : '#FF2A2A',
-                    yoyo: true,
-                    repeat: 3,
-                    onComplete: () => {
-                        // Reset to original state
-                        gsap.to(el, { x: 0, y: 0, skewX: 0, color: originalColor, duration: 0.1, clearProps: "color" });
-                    }
-                });
-            }, Math.random() * 5000 + 4000);
+            setInterval(() => applyGlitch(el), Math.random() * 5000 + 4000);
         });
     };
     initRandomGlitch();
+
+    // ═══════════════════════════════════════════════════════════════════
+    // STITCH EASTER EGG (DRAGGABLE GLITCH) - WEN TO WEB
+    // ═══════════════════════════════════════════════════════════════════
+    const initStitchEgg = () => {
+        const stitchEgg = document.getElementById('stitchEgg');
+        if (!stitchEgg || typeof Draggable === 'undefined') return;
+
+        // Make it draggable
+        Draggable.create(stitchEgg, {
+            type: "x,y",
+            bounds: "body",
+            inertia: true,
+            onPress: function() {
+                gsap.to(this.target, { scale: 0.9, duration: 0.2 });
+            },
+            onRelease: function() {
+                gsap.to(this.target, { scale: 1, duration: 0.2, ease: "back.out(1.7)" });
+            }
+        });
+
+        const placeholder = stitchEgg.querySelector('.stitch-placeholder');
+        if (placeholder) {
+            placeholder.textContent = '{ W E N }';
+            
+            // WEN to WEB interaction
+            stitchEgg.addEventListener('mouseenter', () => {
+                placeholder.textContent = '{ W E B }';
+                gsap.to(placeholder, { color: '#fff', borderColor: '#fff', duration: 0.2 });
+            });
+            stitchEgg.addEventListener('mouseleave', () => {
+                placeholder.textContent = '{ W E N }';
+                gsap.to(placeholder, { color: 'var(--accent-primary)', borderColor: 'var(--accent-primary)', duration: 0.2 });
+            });
+        }
+
+        // Randomly appear glitch
+        setTimeout(() => {
+            gsap.to(stitchEgg, {
+                opacity: 0.8,
+                duration: 0.1,
+                yoyo: true,
+                repeat: 5,
+                onComplete: () => {
+                    gsap.to(stitchEgg, { opacity: 1, duration: 1, ease: "power2.out" });
+                }
+            });
+            
+            // Random floating animation
+            gsap.to(stitchEgg, {
+                y: "-=20",
+                rotation: 5,
+                duration: 2,
+                yoyo: true,
+                repeat: -1,
+                ease: "sine.inOut"
+            });
+        }, 5000); // Appears after 5 seconds
+    };
+    
+    // Initialize Stitch once DOM and GSAP are ready
+    setTimeout(initStitchEgg, 1500);
+
+    // 5. AUTO-DJ AUTOMATA UI CONTROLLER
+    const initDJAutomata = () => {
+        const djBtn = document.getElementById('btn-dj-automata');
+        if (!djBtn) return;
+
+        djBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            // Check if UI exists, if not, wait for it or access via global
+            if (globalThis.autoDJAesthetic) {
+                const hud = document.querySelector('.moskv-dj-hud');
+                if (hud) {
+                    hud.classList.toggle('visible');
+                    
+                    if (hud.classList.contains('visible')) {
+                        // Start DJ if not already running
+                        if (!globalThis.autoDJAesthetic.audioUnlocked) {
+                            // Mute the background video to avoid clash
+                            const bgFrame = document.getElementById('bg-video');
+                            if (bgFrame && bgFrame.contentWindow) {
+                                bgFrame.contentWindow.postMessage(JSON.stringify({
+                                    event: 'command',
+                                    func: 'pauseVideo',
+                                    args: []
+                                }), '*');
+                            }
+                            
+                            // Initialize Audio Engine concurrently if not done
+                            if (!globalThis.autoDJEngine) {
+                                globalThis.autoDJEngine = new AutoDJEngine();
+                                await globalThis.autoDJEngine.init();
+                                console.log("[CORTEX] Audio Engine Online.");
+                            }
+
+                            // Fake a click to unlock the Audio Context in AutoDJAesthetic
+                            document.body.click();
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    initDJAutomata();
 
 });
