@@ -167,10 +167,10 @@ class AutoDJAesthetic {
     
     if (deckId === 'a') {
       event.target.setPlaybackRate(1.0); // Native speed initially
-      document.getElementById('bg-video-a').style.opacity = 1;
+      document.getElementById('video-deck-a').style.opacity = 1;
       event.target.playVideo();
     } else {
-      document.getElementById('bg-video-b').style.opacity = 0;
+      document.getElementById('video-deck-b').style.opacity = 0;
       event.target.pauseVideo();
     }
 
@@ -992,8 +992,8 @@ class AutoDJAesthetic {
     const fromPlayer = fromDeckId === 'a' ? this.deckA : this.deckB;
     const toPlayer = toDeckId === 'a' ? this.deckA : this.deckB;
 
-    const fromEl = document.getElementById(`bg-video-${fromDeckId}`);
-    const toEl = document.getElementById(`bg-video-${toDeckId}`);
+    const fromEl = document.getElementById(`video-deck-${fromDeckId}`);
+    const toEl = document.getElementById(`video-deck-${toDeckId}`);
 
     const availableTracks = globalThis.DATA.videoThumbnails;
     const moodPool = this._getTracksForMood();

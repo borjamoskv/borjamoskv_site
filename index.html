@@ -8,6 +8,10 @@
   <meta name="description"
     content="Borja Moskv — Música, glitch y sistemas para abrir grietas en la realidad. IDM, Techno, Ambient, AI Visuals y Web3.">
   <meta name="theme-color" content="#2E5090">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="apple-touch-icon" href="/img/favicon.ico">
+  <link rel="canonical" href="https://borjamoskv.com">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <!-- Open Graph -->
   <meta property="og:title" content="BORJA MOSKV | Productor Experimental · Arquitecto Digital">
@@ -15,11 +19,42 @@
     content="Música, glitch y sistemas para abrir grietas en la realidad. IDM, Techno, Ambient, AI Visuals y Web3.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://borjamoskv.com">
+  <meta property="og:image" content="https://borjamoskv.com/img/og-cover.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="BORJA MOSKV | Productor Experimental">
+  <meta name="twitter:image" content="https://borjamoskv.com/img/og-cover.jpg">
 
-  <!-- SEO & GEO (Hidden) -->
+  <!-- SEO & GEO -->
   <meta name="keywords" content="Borja Moskv, Productor Experimental, IDM, Techno, Ambient, CORTEX, MOSKV-1, Live Sets, Bakala de Troya, VJ">
   <meta name="geo.region" content="ES">
   <meta name="geo.placename" content="Bilbao">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    "name": "Borja Moskv",
+    "alternateName": ["Bakala de Troya", "MOSKV"],
+    "url": "https://borjamoskv.com",
+    "genre": ["IDM", "Techno", "Ambient", "Experimental Electronic"],
+    "foundingLocation": {
+      "@type": "Place",
+      "name": "Bilbao, Spain"
+    },
+    "sameAs": [
+      "https://open.spotify.com/artist/4p7wMuZpktE5aBFhBoQdqa",
+      "https://borjamoskv.bandcamp.com",
+      "https://soundcloud.com/borja-moskv",
+      "https://www.youtube.com/@borjamoskv",
+      "https://www.mixcloud.com/borjamoskv/",
+      "https://foundation.app/@bakaladetroya"
+    ],
+    "description": "Producción experimental, glitch y sistemas para abrir grietas en la realidad. IDM, Techno, Ambient, AI Visuals y Web3."
+  }
+  </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,6 +64,18 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300..700&display=swap"
     rel="stylesheet">
+
+  <!-- Font Preloads (Critical Render Path) -->
+  <link rel="preload" href="https://fonts.gstatic.com/s/inter/v21/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hjQ.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- No-FOUC: Apply time-based theme before paint -->
+  <script>
+    (function(){
+      var h = new Date().getHours();
+      document.documentElement.dataset.theme = (h >= 7 && h < 20) ? 'day' : 'night';
+    })();
+  </script>
 
   <link href="style.css" rel="stylesheet">
   <link href="cortex-terminal.css" rel="stylesheet">
@@ -57,22 +104,14 @@
 
   <!-- VIDEO BACKGROUND (DUAL DECK AUTO-DJ) -->
   <div class="video-container">
-    <!-- Deck A (Inicialmente visible) -->
-    <div id="bg-video-a" class="video-deck active">
-        <iframe title="Background Video Deck A"
-            src="https://www.youtube.com/embed/rmzKC8AYkVw?autoplay=1&mute=1&controls=0&loop=1&playlist=rmzKC8AYkVw&start=0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-        </iframe>
+    <!-- Deck A (Inicialmente visible) — YT.Player targets the inner div -->
+    <div class="video-deck active" id="video-deck-a">
+        <div id="bg-video-a"></div>
     </div>
     
-    <!-- Deck B (Inicialmente invisible) -->
-    <div id="bg-video-b" class="video-deck inactive">
-        <iframe title="Background Video Deck B"
-            src="" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-        </iframe>
+    <!-- Deck B (Inicialmente invisible) — YT.Player targets the inner div -->
+    <div class="video-deck" id="video-deck-b">
+        <div id="bg-video-b"></div>
     </div>
     
     <!-- Overlay de interacción invisible -->
@@ -237,6 +276,43 @@
         </div>
         <div class="drag-body drag-body-paddingless" id="embed-container-3">
           <!-- Injected via script.js -->
+        </div>
+      </div>
+      
+      <!-- Lyria Realtime Window -->
+      <div class="drag-window drag-pos-lyria" id="lyria-window" style="display: none;">
+        <div class="drag-header">
+          <span class="drag-title">LYRIA.GEN —— REALTIME_PROTOCOL</span>
+          <span class="drag-close">✕</span>
+        </div>
+        <div class="drag-body">
+          <div class="lyria-interface">
+            <div class="lyria-visualizer-container">
+              <canvas id="lyria-canvas"></canvas>
+            </div>
+            <div class="lyria-controls">
+              <div class="input-block">
+                <label>PRIMARY AXIS</label>
+                <input type="text" id="lyria-prompt" placeholder="Symphony of rust and static..." value="atmospheric experimental music">
+              </div>
+              <div class="input-block">
+                <label>SECONDARY AXIS</label>
+                <input type="text" id="lyria-prompt-secondary" placeholder="Glitchy IDM textures...">
+              </div>
+              <div class="input-block">
+                <div class="label-row">
+                  <label>MORPH WEIGHT</label>
+                  <span id="lyria-weight-val">0%</span>
+                </div>
+                <input type="range" id="lyria-weight" min="0" max="100" value="0">
+              </div>
+              <div class="lyria-actions">
+                <button id="lyria-summon" class="lyria-btn-primary">SUMMON</button>
+                <button id="lyria-stop" class="lyria-btn-secondary" disabled>HALT</button>
+              </div>
+              <div id="lyria-status" class="lyria-status-bar">STATUS: STANDBY</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -496,6 +572,14 @@
               </div>
               <div class="card-arrow">↗</div>
             </a>
+            <a href="#" class="glass-card neon-hover" id="lyria-lab-trigger">
+              <div class="card-icon">🔊</div>
+              <div class="card-content">
+                <h3>Lyria Realtime</h3>
+                <p>Generación de música en tiempo real. Invoca sonidos sintéticos directamente desde el vacío. Protocolo Gemini 3.1 Pro.</p>
+              </div>
+              <div class="card-arrow">↗</div>
+            </a>
           </div>
         </div>
       </section>
@@ -588,42 +672,7 @@
               <button type="submit" class="newsletter-submit" id="nlSubmit">Sintonizar</button>
             </form>
             <p id="nlStatus" class="nl-status-msg"></p>
-            <script>
-              document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('nlSubmit');
-                const status = document.getElementById('nlStatus');
-                const name = document.getElementById('nlName').value.trim();
-                const email = document.getElementById('nlEmail').value.trim();
-                
-                btn.disabled = true;
-                btn.textContent = '...';
-                status.textContent = '';
-                
-                try {
-                  const res = await fetch('/api/newsletter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email })
-                  });
-                  const data = await res.json();
-                  status.textContent = data.message;
-
-            status.style.color = data.ok ? '#CCFF00' : '#ff003c';
-            if (data.ok) {
-              document.getElementById('nlName').value = '';
-              document.getElementById('nlEmail').value = '';
-            }
-          } catch (err) {
-            console.error('[Newsletter] Network Error:', err);
-            status.textContent = '[Error de conexión] Inténtalo de nuevo.';
-            status.style.color = '#ff003c';
-          }
-          
-          btn.disabled = false;
-          btn.textContent = 'Sintonizar';
-        });
-      </script>
+            <script src="js/newsletter.js" defer></script>
     </div>
   </section>
 
@@ -632,13 +681,13 @@
     <div class="footer-copy">© 2026 BORJA MOSKV</div>
     <div class="footer-links">
       <a href="https://borjamoskv.com" class="footer-link">borjamoskv.com</a>
-      <a href="https://naroa.online" class="footer-link" target="_blank" rel="noopener">naroa.online</a>
-      <a href="https://borjamoskv.substack.com" class="footer-link" target="_blank" rel="noopener">substack</a>
-      <a href="https://portrait.so/borja" class="footer-link" target="_blank" rel="noopener">portrait.so</a>
-      <a href="https://foundation.app/@bakaladetroya" class="footer-link" target="_blank" rel="noopener">foundation (nft)</a>
-      <a href="https://etherscan.io/address/0xE6Eb9807e457758035d59042E56EB0061D64De4a" class="footer-link" target="_blank" rel="noopener">etherscan (0x)</a>
-      <a href="https://github.com/borjamoskv/Cortex-Persist" class="footer-link" target="_blank" rel="noopener">CORTEX</a>
-      <a href="https://moltbook.com" class="footer-link" target="_blank" rel="noopener">moltbook</a>
+      <a href="https://naroa.online" class="footer-link" target="_blank" rel="noopener noreferrer">naroa.online</a>
+      <a href="https://borjamoskv.substack.com" class="footer-link" target="_blank" rel="noopener noreferrer">substack</a>
+      <a href="https://portrait.so/borja" class="footer-link" target="_blank" rel="noopener noreferrer">portrait.so</a>
+      <a href="https://foundation.app/@bakaladetroya" class="footer-link" target="_blank" rel="noopener noreferrer">foundation (nft)</a>
+      <a href="https://etherscan.io/address/0xE6Eb9807e457758035d59042E56EB0061D64De4a" class="footer-link" target="_blank" rel="noopener noreferrer">etherscan (0x)</a>
+      <a href="https://github.com/borjamoskv/Cortex-Persist" class="footer-link" target="_blank" rel="noopener noreferrer">CORTEX</a>
+      <a href="https://moltbook.com" class="footer-link" target="_blank" rel="noopener noreferrer">moltbook</a>
     </div>
     <a href="https://naroa.online" target="_blank" rel="noopener" class="secret-egg" aria-label="Naroa Online" title="Secret Egg">
       <div class="fried-egg">
@@ -662,46 +711,27 @@
     </div>
   </div>
 
+  <!-- DATA (must load sync before modules) -->
   <script src="data.js"></script>
-  <script src="autodj-engine.js"></script>
-  <script src="autodj-video.js"></script>
-  <script src="script.js"></script>
-  <script src="spatial-audio.js"></script>
+  <!-- AutoDJ Engine -->
+  <script src="autodj-engine.js" defer></script>
+  <script src="autodj-video.js" defer></script>
+  <!-- MODULAR JS ARCHITECTURE (v2.0) -->
+  <script src="js/core.js"></script>
+  <script src="js/theme.js" defer></script>
+  <script src="js/mutator.js" defer></script>
+  <script src="js/media.js" defer></script>
+  <script src="js/scroll.js" defer></script>
+  <script src="js/works.js" defer></script>
+  <script src="js/particles.js" defer></script>
+  <script src="js/chat.js" defer></script>
+  <script src="js/cursor.js" defer></script>
+  <script src="js/draggable.js" defer></script>
+  <script src="js/interactions.js" defer></script>
+  <script src="spatial-audio.js" defer></script>
+  <script src="js/lyria.js" defer></script>
 
-  <!-- Horizontal Scroll Logic (GSAP) -->
-  <script>
-    document.addEventListener("DOMContentLoaded", (event) => {
-      gsap.registerPlugin(ScrollTrigger);
-      
-      let panels = gsap.utils.toArray(".h-panel");
-      if (panels.length > 0) {
-        // En pantallas muy pequeñas (< 768px), quizá prefieras apagarlo.
-        // Pero el GSAP MatchMedia es mejor para esto.
-        let mm = gsap.matchMedia();
-        
-        mm.add("(min-width: 768px)", () => {
-          let hUniverse = document.querySelector("#horizontal-universe");
-          let hTrack = document.querySelector(".h-scroll-track");
-          
-          gsap.to(panels, {
-            xPercent: -100 * (panels.length - 1),
-            ease: "none",
-            scrollTrigger: {
-              trigger: hUniverse,
-              pin: true,
-              scrub: 1, // suavizado estilo Awwwards
-              snap: {
-                snapTo: 1 / (panels.length - 1),
-                duration: {min: 0.2, max: 0.6},
-                ease: "power1.inOut"
-              },
-              end: () => "+=" + hTrack.offsetWidth
-            }
-          });
-        });
-      }
-    });
-  </script>
+  <!-- H-Scroll handled by js/scroll.js -->
 
   <div id="jumpscareOverlay" class="jumpscare-overlay">
     <div class="jumpscare-content glitch-mega" data-text="OBEY">OBEY</div>
@@ -727,14 +757,14 @@
   <!-- NO TOCAR Jumpscare -->
   <button id="no-tocar-btn">NO TOCAR</button>
   <div id="elon-jumpscare-overlay">
-      <img src="img/desagradable_elon.png" alt="Elon Musk" />
+      <img src="img/desagradable_elon.png" alt="Elon Musk" width="400" height="400" loading="lazy" />
   </div>
     <!-- Custom Cursor Trail Canvas -->
     <canvas id="cursorTrail" class="cursor-trail-exclusive"></canvas>
 
     <!-- Easter Egg: Stitch (inicialmente oculto) -->
     <div id="stitch-egg" class="stitch-container hidden">
-        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjRtdHk5OTk4aTJkNXAzYzIyZTdma3MzMmp6ZXpsbnI1dW9xOTFpMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hGwvzBNwXDwlO/giphy.gif" alt="Stitch Glitched" id="stitch-img">
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjRtdHk5OTk4aTJkNXAzYzIyZTdma3MzMmp6ZXpsbnI1dW9xOTFpMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hGwvzBNwXDwlO/giphy.gif" alt="Stitch Glitched" id="stitch-img" width="150" height="150" loading="lazy">
         <div class="stitch-glitch-overlay"></div>
     </div>
 </body>
