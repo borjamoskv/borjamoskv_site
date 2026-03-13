@@ -1,7 +1,7 @@
 /**
  * MORPH SHADER TRANSITION (AWWWARDS GRADE)
  * Uses Three.js to create a fullscreen WebGL distortion effect.
- * Triggered programmatically via `window.triggerGlobalMorph(durationMs)`
+ * Triggered programmatically via `globalThis.triggerGlobalMorph(durationMs)`
  */
 
 if (typeof THREE === 'undefined') {
@@ -31,8 +31,8 @@ if (typeof THREE === 'undefined') {
             this.scene = new THREE.Scene();
             this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
             this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
-            this.renderer.setPixelRatio(window.devicePixelRatio);
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setPixelRatio(globalThis.devicePixelRatio);
+            this.renderer.setSize(globalThis.innerWidth, globalThis.innerHeight);
             this.container.appendChild(this.renderer.domElement);
 
             this.clock = new THREE.Clock();
@@ -116,7 +116,7 @@ if (typeof THREE === 'undefined') {
                 uniforms: {
                     uTime: { value: 0 },
                     uProgress: { value: 0 },
-                    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+                    uResolution: { value: new THREE.Vector2(globalThis.innerWidth, globalThis.innerHeight) }
                 },
                 transparent: true,
                 depthWrite: false
@@ -131,9 +131,9 @@ if (typeof THREE === 'undefined') {
         }
 
         bindEvents() {
-            window.addEventListener('resize', () => {
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.material.uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+            globalThis.addEventListener('resize', () => {
+                this.renderer.setSize(globalThis.innerWidth, globalThis.innerHeight);
+                this.material.uniforms.uResolution.value.set(globalThis.innerWidth, globalThis.innerHeight);
             });
         }
 
