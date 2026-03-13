@@ -939,6 +939,11 @@ class AutoDJAesthetic {
 
     if (this.autoMixTimer) clearTimeout(this.autoMixTimer);
     
+    // Trigger Awwwards morph shader overlay
+    if (typeof globalThis.triggerGlobalMorph === 'function') {
+        globalThis.triggerGlobalMorph(3000); // 3 seconds transition
+    }
+
     // ==========================================
     // CORTEX V5 STRUCTURAL MIXING (PHRASE SYNC)
     // ==========================================
